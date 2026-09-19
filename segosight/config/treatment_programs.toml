@@ -1,0 +1,200 @@
+# Treatment programs, control limits and contract terms.
+#
+# Transcribed from treatment_guidelines.pdf revision 6 (February 2026).
+# Thresholds live here, never hard-coded in application logic, so a guideline
+# revision is a config change with a version bump rather than a code release.
+#
+# `rule_version` is stamped onto every assessment so an operator can see which
+# revision produced a judgement.
+
+rule_version = "treatment_guidelines_rev6"
+
+[cadence]
+# Contracted visit intervals in days (organization_context.pdf section 3).
+weekly   = 7
+biweekly = 14
+monthly  = 30
+
+[thresholds]
+# A visit is overdue past its cadence times this factor. 1.5 allows normal
+# route slippage without alerting; beyond it, coverage is genuinely slipping.
+overdue_factor  = 1.5
+critical_factor = 3.0
+# Minimum consecutive same-direction services before a trend is actionable
+# (guidelines section 4.2: "three or more consecutive services").
+trend_min_run = 3
+# How long a conditional-program prerequisite (CT-HC2 chloride and inhibitor)
+# stays valid after the field test that established it. Beyond this the
+# condition is unconfirmed rather than failed -- see section 6.1 handling.
+condition_validity_days = 45
+# Guidelines section 9 requires a work order "within one business day of
+# identification". Three calendar days approximates that across a weekend.
+# A work order raised later is still a real remediation, but it does not
+# retroactively satisfy the notification requirement.
+documentation_window_days = 3
+
+# ===========================================================================
+# Section 3.1 -- Steam boilers
+# ===========================================================================
+[programs.BP-STD]
+label       = "Standard boiler, up to 150 psig"
+system_kind = "steam_boiler"
+limits = [
+  { parameter = "conductivity",   lower = 2200, upper = 3500, unit = "uS/cm" },
+  { parameter = "ph",             lower = 10.5, upper = 11.5, unit = "pH" },
+  { parameter = "m_alkalinity",   lower = 500,  upper = 800,  unit = "ppm CaCO3" },
+  { parameter = "sulfite",        lower = 20,   upper = 40,   unit = "ppm" },
+  # "Feedwater hardness below 2 ppm": the hardness column on a boiler is
+  # feedwater hardness, so no lower bound applies -- zero is the target.
+  { parameter = "total_hardness", upper = 2,    unit = "ppm CaCO3" },
+  # Action level, not a normal band. Section 4.2 is explicit that waiting for
+  # this number means the metal loss has already happened.
+  { parameter = "iron",           upper = 2.0,  unit = "ppm", kind = "action_level" },
+]
+
+[programs.BP-HP]
+label       = "High-pressure boiler, 150 to 400 psig"
+system_kind = "steam_boiler"
+# Section 6.2: readings that are normal on a standard boiler are serious
+# exceedances here. Route coverage changes are when this mistake happens.
+limits = [
+  { parameter = "conductivity",   lower = 800, upper = 1500, unit = "uS/cm" },
+  { parameter = "ph",             lower = 9.8, upper = 10.5, unit = "pH" },
+  { parameter = "m_alkalinity",   lower = 200, upper = 400,  unit = "ppm CaCO3" },
+  { parameter = "sulfite",        lower = 30,  upper = 50,   unit = "ppm" },
+  { parameter = "total_hardness", upper = 1,   unit = "ppm CaCO3" },
+  { parameter = "iron",           upper = 1.0, unit = "ppm", kind = "action_level" },
+]
+
+# ===========================================================================
+# Section 3.2 -- Open recirculating cooling
+# ===========================================================================
+[programs.CT-STD]
+label       = "Standard open cooling tower"
+system_kind = "cooling"
+limits = [
+  { parameter = "conductivity",   lower = 800, upper = 1800, unit = "uS/cm" },
+  { parameter = "ph",             lower = 8.0, upper = 9.0,  unit = "pH" },
+  { parameter = "total_hardness", upper = 750, unit = "ppm CaCO3" },
+  { parameter = "chloride",       upper = 300, unit = "ppm" },
+  { parameter = "free_halogen",   lower = 0.5, upper = 1.0,  unit = "ppm" },
+  { parameter = "inhibitor",      lower = 8,   upper = 14,   unit = "ppm", product = "CT-770" },
+  # "Below 10^4 CFU/ml", stored as the base-10 exponent.
+  { parameter = "dipslide",       upper = 4,   unit = "log10 CFU/ml", kind = "action_level" },
+]
+
+[programs.CT-HC2]
+label       = "High-cycles open cooling tower"
+system_kind = "cooling"
+# Section 6.1: the wide conductivity band applies only while both conditions
+# hold. If either fails the system reverts to CT-STD limits until restored.
+limits = [
+  { parameter = "ph",             lower = 8.2, upper = 9.0,  unit = "pH" },
+  { parameter = "chloride",       upper = 300, unit = "ppm" },
+  { parameter = "free_halogen",   lower = 0.5, upper = 1.0,  unit = "ppm" },
+  { parameter = "inhibitor",      lower = 12,  upper = 18,   unit = "ppm", product = "CT-785" },
+  { parameter = "dipslide",       upper = 4,   unit = "log10 CFU/ml", kind = "action_level" },
+]
+fallback_program = "CT-STD"
+
+[[programs.CT-HC2.conditional]]
+parameter = "conductivity"
+lower     = 2400
+upper     = 3400
+unit      = "uS/cm"
+# Both must hold at the same observation for the wide band to apply.
+requires  = [
+  { parameter = "chloride",  upper = 300 },
+  { parameter = "inhibitor", lower = 12 },
+]
+note = """Conductivity between 1,800 and 3,400 on an HC2 system is not an \
+exceedance and must not be reported to the customer as one."""
+
+# ===========================================================================
+# Section 3.3 -- Closed loops
+# ===========================================================================
+[programs.CL-N]
+label       = "Closed loop, nitrite"
+system_kind = "closed_loop"
+limits = [
+  { parameter = "nitrite", lower = 900, upper = 1200, unit = "ppm" },
+  { parameter = "ph",      lower = 8.5, upper = 10.5, unit = "pH" },
+  { parameter = "iron",    upper = 1.0, unit = "ppm" },
+  # Conductivity: "record for trend; no fixed limit".
+  { parameter = "conductivity", unit = "uS/cm", kind = "trend_only" },
+]
+
+[programs.CL-M]
+label       = "Closed loop, molybdate"
+system_kind = "closed_loop"
+limits = [
+  { parameter = "molybdate", lower = 200, upper = 300, unit = "ppm" },
+  { parameter = "ph",        lower = 8.0, upper = 10.0, unit = "pH" },
+  { parameter = "iron",      upper = 1.0, unit = "ppm" },
+  { parameter = "conductivity", unit = "uS/cm", kind = "trend_only" },
+]
+
+# ===========================================================================
+# Section 5 -- Microbiological escalation ladders
+# ===========================================================================
+[microbio.general]
+corrective_at = 4   # 10^4: verify oxidant, supplemental biocide, re-test
+elevated_at   = 5   # 10^5: corrective plus physical inspection
+
+[microbio.healthcare]
+# Section 5.3 addendum. Tighter ladder because of aerosol exposure risk.
+corrective_at          = 4
+urgent_single_result   = 5   # single 10^5: urgent offline clean + disinfection
+consecutive_for_escalation = 2   # two consecutive >= 10^4: director notification,
+                                 # written remediation plan, weekly re-tests
+retest_within_days     = 7
+clearance_at           = 3   # two consecutive <= 10^3 to stand down
+clearance_run          = 2
+
+# ===========================================================================
+# Facility classifications
+# ===========================================================================
+[facility_class]
+# Sites serving patient or resident populations run the section 5.3 ladder:
+# Maeser Ridge Regional Medical Center and Aspen Grove Senior Living.
+healthcare = ["F-0001", "F-0019"]
+
+# ===========================================================================
+# Section 6.3 -- Molybdate loops serving process tooling
+#
+# For CL-M loops serving semiconductor or precision tooling, hold molybdate in
+# 225-300 because tool warranties reference that figure. The 200 ppm floor
+# stays the contract minimum: between 200 and 225 is compliant but should be
+# topped up at the same visit.
+#
+# This is the discrepancy Aaron Silva flagged after the 2026-08-25 Oquirrh
+# visit -- "the book's table and the appendix say slightly different things for
+# this loop class" -- so encoding it answers a live technician question.
+# ===========================================================================
+[[program_exceptions]]
+system_id      = "SYS-0044"
+parameter      = "molybdate"
+target_lower   = 225
+contract_lower = 200
+upper          = 300
+reason         = "section_6_3_precision_tooling"
+evidence       = "systems.csv SYS-0044 'Tool cooling loop' at F-0017 Oquirrh Microfab; technician_notes/2026-08-27_silva_oquirrh.txt"
+rationale      = """Oquirrh Microfab is a semiconductor fab and SYS-0044 is its tool cooling loop, so section 6.3 governs over the section 3.3 table. A reading between 200 and 225 is compliant, not an exceedance, and earns a top-up recommendation rather than an alert."""
+
+# ===========================================================================
+# Section 7 -- Seasonal closure
+#
+# A seasonal site showing no visits during its documented closure window is on
+# schedule, not neglected. Without this, Powder Basin reads as 130 days
+# unserviced on a monthly contract -- a false alarm on a real account.
+# ===========================================================================
+[[seasonal_closure]]
+facility_id = "F-0008"
+closed_from = "05-15"   # MM-DD, inclusive
+closed_to   = "10-15"
+evidence    = "customers.csv service_frequency; technician_notes/2026-05-11_fowler_powder-basin-layup.txt"
+rationale   = """Powder Basin Lodge contract reads "monthly (seasonal: closed \
+mid-May to mid-Oct)". Jenn Fowler's layup note of 2026-05-11 records the wet \
+layup and states the site is off schedule until roughly mid-October. Her \
+April note adds: "That is the contract, not us forgetting them. It trips \
+people up every summer when they see the gap in the visit log."""

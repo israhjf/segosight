@@ -14,8 +14,10 @@ import sys
 import time
 from pathlib import Path
 
-from .canonical import entities, events, identity
+from .canonical import entities, events, identity, visits
 from .clean import readings, versioning
+from .curated import alerts, assessments, coverage, microbio, trends
+from .curated.programs import load_config
 from .ingest.raw import land_all
 from .ingest.registry import load_registry
 from .warehouse import connect
@@ -78,6 +80,53 @@ def run(warehouse_path: Path | str | None = None, materials: Path | None = None)
         f"SELECT count(*) FROM {events.TABLE} WHERE facility_id IS NULL"
     ).fetchone()[0]
     print(f"    unresolved (orphaned) events: {orphans}")
+
+    counts = visits.build(conn, corpus=registry.corpus)
+    print(
+        f"  visits={counts['visits']} "
+        f"system_services={counts['system_services']} "
+        f"chemical_applications={counts['chemical_applications']}"
+    )
+
+    print("\nCurated tier")
+    programs = load_config()
+    print(f"  rule version: {programs.rule_version}")
+    print(f"  reading assessments: {assessments.build(conn, programs)}")
+    for status, count in conn.execute(
+        f"""SELECT status, count(*) FROM {assessments.TABLE}
+            WHERE status <> 'in_band' GROUP BY 1 ORDER BY 2 DESC"""
+    ).fetchall():
+        print(f"    {status:<24} {count}")
+
+    print(f"  trend signals: {trends.build(conn, programs)}")
+    print(f"  coverage evaluated: {coverage.build(conn, programs)} facilities")
+    for status, count in conn.execute(
+        f"""SELECT status, count(*) FROM {coverage.TABLE}
+            WHERE status <> 'on_schedule' GROUP BY 1 ORDER BY 2 DESC"""
+    ).fetchall():
+        print(f"    {status:<24} {count}")
+
+    escalations = microbio.build(conn, programs)
+    undocumented = conn.execute(
+        f"SELECT count(*) FROM {microbio.TABLE} WHERE NOT documented"
+    ).fetchone()[0]
+    print(f"  microbio escalations: {escalations} ({undocumented} undocumented)")
+
+    total = alerts.build(conn, programs)
+    print(f"\nOperational alerts: {total}")
+    for row in conn.execute(
+        f"""SELECT severity, risk_class, count(*) FROM {alerts.TABLE}
+            GROUP BY 1,2 ORDER BY count(*) DESC"""
+    ).fetchall():
+        print(f"    {row[0]:<9} {row[1]:<22} {row[2]}")
+
+    print("\nTop 5 by priority")
+    for row in conn.execute(
+        f"""SELECT priority_score, severity, customer_name, title
+            FROM {alerts.TABLE} ORDER BY priority_score DESC, last_observed DESC
+            LIMIT 5"""
+    ).fetchall():
+        print(f"  [{row[0]:.2f}] {row[1]:<8} {(row[2] or '-')[:26]:<26} {row[3]}")
 
     print(f"\nCompleted in {time.perf_counter() - started:.2f}s")
     return conn

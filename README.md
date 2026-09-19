@@ -12,7 +12,7 @@ fragmented exports, without anyone hand-cleaning a spreadsheet first.
 ```bash
 python3 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -m pytest -q          # 184 tests, ~3s
+./.venv/bin/python -m pytest -q          # 226 tests, ~4s
 ./.venv/bin/python -m segosight.pipeline # build the warehouse, ~1s
 ```
 
@@ -34,7 +34,9 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 | `segosight/ingest/` | Source resolution and immutable raw landing |
 | `segosight/clean/` | Record versioning and long-form reading explosion |
 | `segosight/config/identity.toml` | Governed identity crosswalk with evidence and confidence |
-| `segosight/canonical/` | Identity resolution, master data, resolved reading events |
+| `segosight/canonical/` | Identity resolution, master data, resolved events and visits |
+| `segosight/config/treatment_programs.toml` | Control limits, ladders, cadence, seasonal terms |
+| `segosight/curated/` | Assessments, trends, coverage, escalation, alerts |
 | `segosight/pipeline.py` | Runnable end-to-end entry point |
 | `tests/` | Unit tests plus corpus-wide validation against the real CSVs |
 
@@ -48,6 +50,11 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 | `canonical.identity_resolution` | Source ID to canonical ID decisions | Every mapping carries evidence, confidence and authorization |
 | `canonical.customer` / `.facility` / `.system` | Master data, merges applied | Surviving record's own attributes win |
 | `canonical.reading_event` | Readings with identity and series resolved | `alert_eligible` gates uncertain identity out of alerting |
+| `curated.reading_assessment` | Program-aware limit judgements | Thresholds come from config, never hard-coded |
+| `curated.trend_signal` | Sustained-movement evidence | Evidence, not alerts |
+| `curated.coverage_status` | Cadence vs actual, seasonal-aware | Absence is the signal |
+| `curated.microbio_escalation` | §5 ladder plus documentation state | A late work order does not retroactively document |
+| `curated.operational_alert` | Deduplicated, ranked queue | One alert per risk fingerprint |
 
 ## Incorporating a new data batch
 
@@ -113,6 +120,30 @@ pending confirmation. Left unmerged, both would produce false coverage alerts.
 distinct physical units and both records survive intact, per Rosa's explicit
 instruction not to "fix" old records. The link records continuity of service
 without stitching their trend series together.
+
+**Control limits are configuration, and evaluation is program-aware.** All
+thresholds live in `config/treatment_programs.toml` with a `rule_version`
+stamped on every judgement. CT-HC2's conditional 2,400–3,400 band is evaluated
+against carried-forward system state rather than per row, because a BMS point
+measures conductivity alone and cannot re-prove chloride and inhibitor. A
+condition that is *unconfirmed* is not a condition that *failed*: §6.1 says
+1,800–3,400 on an enrolled HC2 tower "must not be reported to the customer" as
+an exceedance, so unconfirmed yields `not_evaluated`. Treating those alike
+produced 787 false exceedances in an early build; it is now 0.
+
+**A late work order does not retroactively document an escalation.** §9 requires
+the record within one business day. Maeser Ridge's CT-2 has exactly one work
+order, raised 2026-09-09; accepting any later work order as evidence reported a
+three-month compliance gap as fully documented. Evidence must land inside the
+window, and later remediation is noted separately.
+
+**Alerts are ranked by consequence, and promotion differs by risk class.**
+Raw trend detection yields 589 signals — unusable as a queue. Corrosion is
+promoted on distance travelled toward its action level; scaling only when a
+tower actually leaves its band or drifts for 6+ services, because towers cycle
+between bleeds by design; residual loss only when the *trough* is falling, since
+every treated system consumes chemical between doses. Boiler conductivity is
+excluded from scaling entirely — blowdown cycles it deliberately.
 
 **Chemical doses are mostly unattributable to a system.** 269 of 316
 chemical-bearing visits serve multiple systems, and `chemicals_added` is a flat

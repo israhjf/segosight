@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import pytest
 
-from segosight.canonical import entities, events, identity
+from segosight.canonical import entities, events, identity, visits
+from segosight.curated import alerts, assessments, coverage, microbio, trends
+from segosight.curated.programs import load_config
 from segosight.clean import readings, versioning
 from segosight.ingest.raw import land_all
 from segosight.ingest.registry import load_registry
@@ -22,6 +24,11 @@ def registry():
 
 
 @pytest.fixture(scope="session")
+def programs():
+    return load_config()
+
+
+@pytest.fixture(scope="session")
 def warehouse(registry):
     if not materials_root().is_dir():
         pytest.skip("source material not present")
@@ -32,5 +39,12 @@ def warehouse(registry):
     identity.build(conn)
     entities.build(conn)
     events.build(conn)
+    visits.build(conn, corpus=registry.corpus)
+    programs = load_config()
+    assessments.build(conn, programs)
+    trends.build(conn, programs)
+    coverage.build(conn, programs)
+    microbio.build(conn, programs)
+    alerts.build(conn, programs)
     yield conn
     conn.close()
