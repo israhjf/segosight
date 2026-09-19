@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from segosight.ingest.raw import SCHEMA_TABLE
-from segosight.ingest.raw import TABLE as RAW_TABLE
-from segosight.ingest.raw import land_all
-from segosight.ingest.registry import load_registry
+from segosight.features.ingestion.raw.landing import SCHEMA_TABLE
+from segosight.features.ingestion.raw.landing import TABLE as RAW_TABLE
+from segosight.features.ingestion.raw.landing import land_all
+from segosight.features.ingestion.registry import load_registry
 
 
 class TestRegistry:
@@ -116,7 +116,7 @@ class TestRowHash:
 
 class TestSchemaDrift:
     def test_new_batch_column_is_detected_not_silently_absorbed(self, registry):
-        from segosight.warehouse import connect
+        from segosight.shared.warehouse import connect
 
         conn = connect(":memory:")
         results = land_all(conn, registry)
@@ -183,7 +183,7 @@ class TestLanding:
         assert "mS/cm" in payload
 
     def test_re_landing_is_idempotent(self, registry):
-        from segosight.warehouse import connect
+        from segosight.shared.warehouse import connect
 
         conn = connect(":memory:")
         first = sum(r.rows_inserted for r in land_all(conn, registry))

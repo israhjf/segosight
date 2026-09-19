@@ -2,8 +2,8 @@
 
 import pytest
 
-from segosight.normalize import codes
-from segosight.normalize.delimited import (
+from segosight.shared.normalize import codes
+from segosight.shared.normalize.delimited import (
     Dose,
     doses_are_attributable,
     parse_chemicals_added,

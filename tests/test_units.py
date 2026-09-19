@@ -5,8 +5,8 @@ Literals are verbatim from water_readings.csv / water_readings_2026-09.csv.
 
 import pytest
 
-from segosight.normalize import codes
-from segosight.normalize.units import (
+from segosight.shared.normalize import codes
+from segosight.features.chemistry.units import (
     PARAMETERS,
     convert,
     parse_units_declaration,

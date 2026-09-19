@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from segosight.canonical.entities import CUSTOMER_TABLE, FACILITY_TABLE, SYSTEM_TABLE
-from segosight.canonical.events import SERIES_TABLE
-from segosight.canonical.events import TABLE as EVENTS
-from segosight.canonical.identity import EMPLOYEE_TABLE, LINEAGE_TABLE
-from segosight.canonical.identity import TABLE as CROSSWALK
+from segosight.features.identity.canonical.entities import CUSTOMER_TABLE, FACILITY_TABLE, SYSTEM_TABLE
+from segosight.features.chemistry.canonical.series import SERIES_TABLE
+from segosight.features.chemistry.canonical.series import TABLE as EVENTS
+from segosight.features.identity.canonical.crosswalk import EMPLOYEE_TABLE, LINEAGE_TABLE
+from segosight.features.identity.canonical.crosswalk import TABLE as CROSSWALK
 
 
 class TestCrosswalk:

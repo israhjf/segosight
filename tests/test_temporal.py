@@ -7,8 +7,8 @@ import datetime as dt
 
 import pytest
 
-from segosight.normalize import codes
-from segosight.normalize.temporal import parse_date, parse_timestamp
+from segosight.shared.normalize import codes
+from segosight.shared.normalize.temporal import parse_date, parse_timestamp
 
 CORPUS = (dt.date(2026, 3, 1), dt.date(2026, 9, 30))
 

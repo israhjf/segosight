@@ -9,9 +9,9 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from segosight.api import dependencies
-from segosight.api.app import create_app
-from segosight.curated.extraction import PENDING
+from segosight.app import dependencies
+from segosight.app.api import create_app
+from segosight.features.review.curated.extraction import PENDING
 
 
 @pytest.fixture()
@@ -25,7 +25,7 @@ def client(writable_warehouse, monkeypatch):
     """
     monkeypatch.setattr(dependencies, "_connection", writable_warehouse)
     monkeypatch.setattr(dependencies, "close_connection", lambda: None)
-    monkeypatch.setattr("segosight.api.app.close_connection", lambda: None)
+    monkeypatch.setattr("segosight.app.api.close_connection", lambda: None)
     app = create_app()
     with TestClient(app) as test_client:
         yield test_client

@@ -15,7 +15,7 @@ import { PipelineAction } from "@/features/pipeline/PipelineAction";
 import { useReviewer } from "@/features/review/ReviewerContext";
 import { isoDate } from "@/shared/format";
 import type { Overview } from "@/shared/types";
-import { ThemeMenu } from "./ThemeMenu";
+import { ThemeMenu } from "@/design-system/ThemeMenu";
 
 type Props = {
   overview: Overview | null;

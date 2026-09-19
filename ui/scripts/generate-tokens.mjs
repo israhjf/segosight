@@ -1,7 +1,7 @@
 /**
  * Generates a typed token module from the Material Theme Builder CSS export.
  *
- * The .css files in src/theme/tokens are the source of truth and are copied
+ * The .css files in src/design-system/tokens are the source of truth and are copied
  * verbatim from the design handoff. MUI needs real colour values rather than
  * `var(...)` strings so it can compute hover states, alpha overlays and
  * contrast text, so this script mirrors them into TypeScript.
@@ -13,8 +13,8 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const tokenDir = join(here, "..", "src", "theme", "tokens");
-const out = join(here, "..", "src", "theme", "tokens.generated.ts");
+const tokenDir = join(here, "..", "src", "design-system", "tokens");
+const out = join(here, "..", "src", "design-system", "tokens.generated.ts");
 
 const camel = (s) => s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
 
@@ -41,7 +41,7 @@ for (const file of readdirSync(tokenDir).filter((f) => f.endsWith(".css"))) {
 }
 
 const body = `// GENERATED FILE -- do not edit by hand.
-// Source: src/theme/tokens/*.css (Material Theme Builder export).
+// Source: src/design-system/tokens/*.css (Material Theme Builder export).
 // Regenerate with: pnpm run tokens
 
 export type MaterialScheme = {

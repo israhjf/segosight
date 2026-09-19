@@ -10,14 +10,14 @@ import datetime as dt
 
 import pytest
 
-from segosight.curated.alerts import TABLE as ALERTS
-from segosight.curated.assessments import TABLE as ASSESSMENTS
-from segosight.curated.coverage import TABLE as COVERAGE
-from segosight.curated.coverage import _within_window
-from segosight.curated.microbio import TABLE as MICROBIO
-from segosight.curated.programs import SeasonalClosure
-from segosight.curated.trends import TABLE as TRENDS
-from segosight.curated.trends import find_runs, resample_weekly
+from segosight.features.alerts.curated.aggregation import TABLE as ALERTS
+from segosight.features.chemistry.curated.assessments import TABLE as ASSESSMENTS
+from segosight.features.service.curated.coverage import TABLE as COVERAGE
+from segosight.features.service.curated.coverage import _within_window
+from segosight.features.compliance.curated.microbio import TABLE as MICROBIO
+from segosight.features.chemistry.programs import SeasonalClosure
+from segosight.features.chemistry.curated.trends import TABLE as TRENDS
+from segosight.features.chemistry.curated.trends import find_runs, resample_weekly
 
 
 class TestProgramConfig:

@@ -6,7 +6,7 @@ import datetime as dt
 
 import pytest
 
-from segosight.normalize.prose import (
+from segosight.shared.normalize.prose import (
     find_commitments,
     find_due_date,
     parse_email_headers,

@@ -11,19 +11,19 @@ import csv
 
 import pytest
 
-from segosight.normalize import codes
-from segosight.normalize.delimited import parse_chemicals_added, parse_systems_serviced
-from segosight.normalize.identity import resolve_actor
-from segosight.normalize.numeric import parse_number
-from segosight.normalize.quality import parse_dipslide
-from segosight.normalize.temporal import parse_timestamp
-from segosight.normalize.units import (
+from segosight.shared.normalize import codes
+from segosight.shared.normalize.delimited import parse_chemicals_added, parse_systems_serviced
+from segosight.shared.normalize.actors import resolve_actor
+from segosight.shared.normalize.numeric import parse_number
+from segosight.features.chemistry.quality import parse_dipslide
+from segosight.shared.normalize.temporal import parse_timestamp
+from segosight.features.chemistry.units import (
     COLUMN_SPECS,
     convert,
     parse_units_declaration,
     resolve_parameter,
 )
-from segosight.paths import materials_root, new_batch_root
+from segosight.shared.paths import materials_root, new_batch_root
 
 
 def _read(path):

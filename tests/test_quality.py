@@ -2,9 +2,9 @@
 
 import pytest
 
-from segosight.normalize import codes
-from segosight.normalize.numeric import parse_number
-from segosight.normalize.quality import assess, parse_dipslide
+from segosight.shared.normalize import codes
+from segosight.shared.normalize.numeric import parse_number
+from segosight.features.chemistry.quality import assess, parse_dipslide
 
 
 class TestParseNumber:

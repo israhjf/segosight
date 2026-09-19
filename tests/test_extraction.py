@@ -6,14 +6,14 @@ import datetime as dt
 
 import pytest
 
-from segosight.curated.alerts import EVIDENCE_TABLE
-from segosight.curated.alerts import TABLE as ALERTS
-from segosight.curated.extraction import PENDING, REVIEW_QUEUE_VIEW
-from segosight.curated.extraction import TABLE as INSIGHTS
-from segosight.curated.linking import Linker, slugify
-from segosight.curated.llm import MAX_LLM_CONFIDENCE, _validate
-from segosight.ingest.documents import TABLE as DOCUMENTS
-from segosight.ingest.documents import parse_filename
+from segosight.features.alerts.curated.aggregation import EVIDENCE_TABLE
+from segosight.features.alerts.curated.aggregation import TABLE as ALERTS
+from segosight.features.review.curated.extraction import PENDING, REVIEW_QUEUE_VIEW
+from segosight.features.review.curated.extraction import TABLE as INSIGHTS
+from segosight.features.review.linking import Linker, slugify
+from segosight.features.review.llm import MAX_LLM_CONFIDENCE, _validate
+from segosight.features.review.raw.documents import TABLE as DOCUMENTS
+from segosight.features.review.raw.documents import parse_filename
 
 
 class TestDocumentIngestion:

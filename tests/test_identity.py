@@ -2,8 +2,8 @@
 
 import pytest
 
-from segosight.normalize import codes
-from segosight.normalize.identity import resolve_actor
+from segosight.shared.normalize import codes
+from segosight.shared.normalize.actors import resolve_actor
 
 
 class TestFullNames:
@@ -75,7 +75,7 @@ class TestUnresolved:
         assert got.value is None and got.issues == ()
 
     def test_ambiguous_initials_are_flagged_rather_than_guessed(self, monkeypatch):
-        import segosight.normalize.identity as ident
+        import segosight.shared.normalize.actors as ident
 
         twin = ident.Actor("EMP-XX", "Jane Fowler", "employee")
         monkeypatch.setitem(ident._BY_INITIALS, "JF", [ident.ROSTER[5], twin])

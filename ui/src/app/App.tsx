@@ -5,7 +5,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Snackbar from "@mui/material/Snackbar";
 
 import { ReviewerProvider } from "@/features/review/ReviewerContext";
-import { api } from "@/shared/api";
+import { api } from "@/shared/api/client";
 import type { Alert as AlertType, Overview, ReviewItem } from "@/shared/types";
 import { AppShell } from "./AppShell";
 
@@ -16,7 +16,7 @@ const AlertDetailPage = lazy(() =>
     default: module.AlertDetailPage,
   }))
 );
-import { OverviewPage } from "./OverviewPage";
+import { OverviewPage } from "@/features/overview/OverviewPage";
 
 export function App() {
   const [overview, setOverview] = useState<Overview | null>(null);

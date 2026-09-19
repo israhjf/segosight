@@ -22,8 +22,8 @@ Running the pieces individually:
 python3 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
 ./.venv/bin/python -m pytest -q               # 302 tests, ~6s
-./.venv/bin/python -m segosight.pipeline      # build the warehouse, ~2s
-./.venv/bin/python -m segosight.review list   # pending-review queue (CLI)
+./.venv/bin/python -m segosight.app.pipeline  # build the warehouse, ~2s
+./.venv/bin/python -m segosight.features.review.cli list   # review queue (CLI)
 cd ui && pnpm install && pnpm run build       # UI bundle
 ```
 
@@ -41,22 +41,19 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 
 | Path | Purpose |
 | --- | --- |
-| `segosight/normalize/` | Pure normalization primitives (no I/O, fully unit-tested) |
-| `segosight/config/sources.toml` | Declarative source registry: batches, globs, business keys |
-| `segosight/ingest/` | Source resolution and immutable raw landing |
-| `segosight/clean/` | Record versioning and long-form reading explosion |
-| `segosight/config/identity.toml` | Governed identity crosswalk with evidence and confidence |
-| `segosight/canonical/` | Identity resolution, master data, resolved events and visits |
-| `segosight/config/treatment_programs.toml` | Control limits, ladders, cadence, seasonal terms |
-| `segosight/curated/` | Assessments, trends, coverage, escalation, alerts |
-| `segosight/curated/extraction.py` | Prose → reviewable insight candidates |
-| `segosight/curated/llm.py` | Optional local-model enrichment, off by default |
-| `segosight/review.py` | CLI for the human-review gate |
-| `segosight/curated/promotion.py` | Promotes a reviewed insight into governed record |
-| `segosight/api/` | FastAPI: owns the DuckDB lock, serves the API and the UI |
-| `ui/src/theme/` | Material palette, modes, validated chart colours |
-| `ui/src/features/` | review · alerts · pipeline |
-| `segosight/pipeline.py` | Runnable end-to-end entry point |
+| `segosight/features/` | One vertical slice per domain; tier sub-layers inside |
+| `segosight/features/ingestion/` | Source registry, immutable landing, supersede |
+| `segosight/features/identity/` | Crosswalk, canonical master data, asset lineage |
+| `segosight/features/chemistry/` | Readings, series, control limits, assessments, trends |
+| `segosight/features/service/` | Visits, chemical applications, coverage |
+| `segosight/features/compliance/` | Microbiological escalation ladder |
+| `segosight/features/alerts/` | Alert aggregation, ranking, evidence, router |
+| `segosight/features/review/` | Documents, extraction, LLM, promotion, router, CLI |
+| `segosight/shared/` | Warehouse, paths, domain-agnostic normalization |
+| `segosight/app/` | FastAPI factory, DuckDB lock, pipeline orchestrator |
+| `segosight/config/` | Governed TOML: sources, identity, treatment programs |
+| `ui/src/design-system/` | Material tokens, modes, validated chart colours |
+| `ui/src/features/` | overview · alerts · review · pipeline |
 | `tests/` | Unit tests plus corpus-wide validation against the real CSVs |
 
 ## Tiers

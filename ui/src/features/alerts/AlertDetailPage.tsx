@@ -19,12 +19,12 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-import { SeverityChip } from "@/shared/SeverityChip";
-import { api } from "@/shared/api";
+import { SeverityChip } from "@/design-system/components/SeverityChip";
+import { api } from "@/shared/api/client";
 import { currency, humanize, isoDate, shortDate } from "@/shared/format";
 import type { AlertDetail } from "@/shared/types";
-import { EvidenceLine } from "./EvidenceLine";
-import { TrendChart } from "./TrendChart";
+import { EvidenceLine } from "./components/EvidenceLine";
+import { TrendChart } from "./components/TrendChart";
 
 function Facts({ detail }: { detail: AlertDetail }) {
   const rows: Array<[string, string]> = [

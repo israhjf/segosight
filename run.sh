@@ -15,13 +15,13 @@ $PY -m pip install -q -r requirements.txt
 
 if [ ! -f warehouse/segosight.duckdb ]; then
   echo "Building the warehouse (first run)..."
-  $PY -m segosight.pipeline
+  $PY -m segosight.app.pipeline
 fi
 
 if [ "${1:-serve}" = "dev" ]; then
   echo "API      -> http://127.0.0.1:8000"
   echo "UI (dev) -> http://127.0.0.1:5173"
-  $PY -m uvicorn segosight.api.app:app --reload --port 8000 &
+  $PY -m uvicorn segosight.app.api:app --reload --port 8000 &
   trap 'kill 0' EXIT
   (cd ui && pnpm install --silent && pnpm run dev)
 else
@@ -30,5 +30,5 @@ else
     (cd ui && pnpm install --silent && pnpm run build)
   fi
   echo "SegoSight -> http://127.0.0.1:8000"
-  exec $PY -m uvicorn segosight.api.app:app --port 8000
+  exec $PY -m uvicorn segosight.app.api:app --port 8000
 fi

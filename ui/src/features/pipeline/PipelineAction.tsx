@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import SyncIcon from "@mui/icons-material/Sync";
 
-import { api } from "@/shared/api";
+import { api } from "@/shared/api/client";
 import { humanize } from "@/shared/format";
 import type { PipelineResult } from "@/shared/types";
 

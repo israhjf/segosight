@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import pytest
 
-from segosight.clean.readings import TABLE as LONG
-from segosight.clean.versioning import TABLE as VERSIONS
-from segosight.clean.versioning import superseded
+from segosight.features.chemistry.clean.readings import TABLE as LONG
+from segosight.features.ingestion.clean.versioning import TABLE as VERSIONS
+from segosight.features.ingestion.clean.versioning import superseded
 
 
 class TestVersioning:

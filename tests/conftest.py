@@ -16,15 +16,22 @@ import shutil
 import duckdb
 import pytest
 
-from segosight.canonical import entities, events, identity, visits
-from segosight.clean import readings, versioning
-from segosight.curated import alerts, assessments, coverage, extraction, microbio, trends
-from segosight.curated.programs import load_config
-from segosight.ingest import documents
-from segosight.ingest.raw import land_all
-from segosight.ingest.registry import load_registry
-from segosight.paths import materials_root
-from segosight.warehouse import connect
+from segosight.features.chemistry.canonical import series as events
+from segosight.features.identity.canonical import crosswalk as identity, entities
+from segosight.features.service.canonical import visits
+from segosight.features.chemistry.clean import readings
+from segosight.features.ingestion.clean import versioning
+from segosight.features.alerts.curated import aggregation as alerts
+from segosight.features.chemistry.curated import assessments, trends
+from segosight.features.compliance.curated import microbio
+from segosight.features.review.curated import extraction
+from segosight.features.service.curated import coverage
+from segosight.features.chemistry.programs import load_config
+from segosight.features.review.raw import documents
+from segosight.features.ingestion.raw.landing import land_all
+from segosight.features.ingestion.registry import load_registry
+from segosight.shared.paths import materials_root
+from segosight.shared.warehouse import connect
 
 
 @pytest.fixture(scope="session")
