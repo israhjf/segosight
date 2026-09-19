@@ -12,7 +12,14 @@ import { SEVERITY_ORDER } from "@/theme";
 import type { Alert } from "@/shared/types";
 import { AlertCard } from "./AlertCard";
 
-export function AlertQueue({ alerts, loading }: { alerts: Alert[]; loading: boolean }) {
+type Props = {
+  alerts: Alert[];
+  loading: boolean;
+  /** False when a tab label already names the section, to avoid repeating it. */
+  showHeading?: boolean;
+};
+
+export function AlertQueue({ alerts, loading, showHeading = true }: Props) {
   const [severity, setSeverity] = useState<string>("all");
 
   const filtered = useMemo(
@@ -36,13 +43,19 @@ export function AlertQueue({ alerts, loading }: { alerts: Alert[]; loading: bool
         flexWrap="wrap"
         gap={1}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <CrisisAlertIcon color="error" />
-          <Typography id="alerts-heading" variant="h2">
-            Governed alerts
+        {showHeading ? (
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <CrisisAlertIcon color="error" />
+            <Typography id="alerts-heading" variant="h2">
+              Governed alerts
+            </Typography>
+            <Chip size="small" label={`${alerts.length} active`} variant="outlined" />
+          </Stack>
+        ) : (
+          <Typography variant="caption" color="text.secondary">
+            Ranked by severity, weighted by account tier and equipment criticality
           </Typography>
-          <Chip size="small" label={`${alerts.length} active`} variant="outlined" />
-        </Stack>
+        )}
 
         {/* Filters sit in one row above the list, never inside the cards. */}
         <ToggleButtonGroup

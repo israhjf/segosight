@@ -32,11 +32,19 @@ export function ThemeMenu() {
           {mode === "dark" ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>
       </Tooltip>
+      {/*
+        Hidden for now to keep the app bar uncluttered. Deliberately not
+        deleted: the contrast schemes it exposes (medium and high) are a real
+        accessibility need, and `prefers-contrast: more` still selects the
+        high-contrast palette automatically without this control. Remove the
+        `display: none` to bring the menu back.
+      */}
       <Tooltip title="Display settings">
         <IconButton
           onClick={(event) => setAnchor(event.currentTarget)}
           size="small"
           aria-label="Display settings"
+          sx={{ display: "none" }}
         >
           <SettingsBrightnessIcon />
         </IconButton>

@@ -1,6 +1,5 @@
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
-import Badge from "@mui/material/Badge";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
@@ -56,26 +55,19 @@ export function AppShell({ overview, onRefresh, children }: Props) {
 
           <Box sx={{ flex: 1 }} />
 
+          {/*
+            The pending-review count lives in the stat tiles and the tab label
+            now, so the app bar carries only the data-currency pill -- the one
+            fact neither of those conveys.
+          */}
           {overview && (
-            <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-              <Tooltip title="Extracted insights waiting for a human decision">
-                <Badge
-                  color="primary"
-                  badgeContent={overview.pending_review}
-                  max={999}
-                  sx={{ "& .MuiBadge-badge": { right: -4, top: 2 } }}
-                >
-                  <Chip size="small" variant="outlined" label="Insight review" />
-                </Badge>
-              </Tooltip>
-              <Tooltip title="Data current as of the latest observation in the warehouse">
-                <Chip
-                  size="small"
-                  variant="outlined"
-                  label={`As of ${isoDate(overview.as_of_date)}`}
-                />
-              </Tooltip>
-            </Stack>
+            <Tooltip title="Data current as of the latest observation in the warehouse">
+              <Chip
+                size="small"
+                variant="outlined"
+                label={`As of ${isoDate(overview.as_of_date)}`}
+              />
+            </Tooltip>
           )}
 
           <PipelineAction onComplete={onRefresh} />

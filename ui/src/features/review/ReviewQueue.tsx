@@ -21,9 +21,11 @@ type Props = {
   items: ReviewItem[];
   loading: boolean;
   onChanged: (message: string) => void;
+  /** False when a tab label already names the section, to avoid repeating it. */
+  showHeading?: boolean;
 };
 
-export function ReviewQueue({ items, loading, onChanged }: Props) {
+export function ReviewQueue({ items, loading, onChanged, showHeading = true }: Props) {
   const { reviewer } = useReviewer();
   const [visible, setVisible] = useState(PAGE);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -59,13 +61,17 @@ export function ReviewQueue({ items, loading, onChanged }: Props) {
         flexWrap="wrap"
         gap={1}
       >
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <EditNoteIcon color="primary" />
-          <Typography id="review-heading" variant="h2">
-            Pending insight review
-          </Typography>
-          <Chip size="small" label={items.length} color="primary" variant="outlined" />
-        </Stack>
+        {showHeading ? (
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <EditNoteIcon color="primary" />
+            <Typography id="review-heading" variant="h2">
+              Pending insight review
+            </Typography>
+            <Chip size="small" label={items.length} color="primary" variant="outlined" />
+          </Stack>
+        ) : (
+          <span />
+        )}
         <Typography variant="caption" color="text.secondary">
           Sorted: unresolved and overdue first, then least certain
         </Typography>
