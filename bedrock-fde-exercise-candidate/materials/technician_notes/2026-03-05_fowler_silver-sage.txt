@@ -1,0 +1,13 @@
+Silver Sage SLC-1, first note of the season. Jenn F. 3/5/26
+
+For anyone new reading this file: the four towers here (CT-A through D) run
+the HIGH CYCLES program, CT-HC2. They are supposed to sit way above the
+normal conductivity limit. Do not panic at 2900 and do not compare these to
+the standard tower table. The tradeoff is we watch chloride and keep the
+CT-785 residual up. That is the deal with the customer to save water.
+
+All four towers in range today. CT-B chloride a touch higher than the
+others, worth keeping an eye on.
+
+BMS trend export is set up to come over monthly. Handy but remember it is
+only conductivity and sometimes pH, it is not a substitute for wet tests.

@@ -1,0 +1,52 @@
+wo_id,customer_id,facility_id,system_id,created_date,priority,status,owner,title,description,resolved_date,resolution_notes,estimated_cost_usd,actual_cost_usd
+WO-0101,CUST-0009,F-0011,,2026-03-03,P3,closed,Tomas Rivera,Softener resin cleaning,"Iron-fouled resin, clean with resin cleaner and verify capacity.",2026-03-13,Completed as described.,350,471
+WO-0102,CUST-0022,F-0025,SYS-0053,2026-03-04,P3,closed,Rosa Camacho,Replace chemical feed tubing,"Peristaltic tubing hardened, replace and prime.",2026-03-25,Completed as described.,120,107
+WO-0103,CUST-0015,F-0017,,2026-03-05,P3,resolved,Marcus Webb,Chemical containment pallet swap,"Containment pallet cracked, replace.",2026-03-08,Completed as described.,150,150
+WO-0104,CUST-0020,F-0023,,2026-03-10,P2,closed,Marcus Webb,Biocide pump rebuild,Diaphragm worn. Rebuild kit.,2026-03-11,Completed as described.,210,210
+WO-0105,CUST-0010,F-0012,SYS-0033,2026-03-10,P3,in_progress,Rosa Camacho,Biocide pump rebuild,Diaphragm worn. Rebuild kit.,,,210,
+WO-0106,CUST-0007,F-0009,SYS-0026,2026-03-10,P3,open,Rosa Camacho,Repack blowdown valve,Valve stem weeping. Repack.,,,260,
+WO-0107,CUST-0005,F-0006,SYS-0021,2026-03-14,P2,in_progress,Dale Hardy,Chemical containment pallet swap,"Containment pallet cracked, replace.",,,150,
+WO-0108,CUST-0020,F-0023,SYS-0051,2026-03-15,P3,closed,Marcus Webb,Update site log binder,Replace water log sheets and post treatment ranges.,2026-04-05,Completed as described.,,
+WO-0109,CUST-0008,F-0010,SYS-0027,2026-03-19,P2,resolved,Jenn Fowler,Update site log binder,Replace water log sheets and post treatment ranges.,2026-03-24,Completed as described.,,
+WO-0110,CUST-0016,F-0018,SYS-0046,2026-03-26,P2,closed,Rosa Camacho,Repack blowdown valve,Valve stem weeping. Repack.,2026-03-31,Completed as described.,260,260
+WO-0111,CUST-0016,F-0018,SYS-0046,2026-03-30,P3,in_progress,Jenn Fowler,Chemical containment pallet swap,"Containment pallet cracked, replace.",,,150,
+WO-0112,CUST-0002,F-0002,SYS-0007,2026-04-03,P3,closed,Jenn Fowler,Replace sight glass,Cracked sight glass on boiler.,2026-04-05,Completed as described.,190,257
+WO-0113,CUST-0021,F-0024,SYS-0052,2026-04-16,P3,in_progress,Dale Hardy,Softener resin cleaning,"Iron-fouled resin, clean with resin cleaner and verify capacity.",,,350,
+WO-0114,CUST-0022,F-0025,SYS-0053,2026-04-19,P3,closed,Tomas Rivera,Softener resin cleaning,"Iron-fouled resin, clean with resin cleaner and verify capacity.",2026-04-20,Completed as described.,350,350
+WO-0115,CUST-0001,F-0001,SYS-0005,2026-04-20,P3,closed,Jenn Fowler,Chilled loop filter change,"Replace side-stream filter bag on chilled loop, verify flow.",2026-04-21,"Filter replaced, differential pressure normal.",180,180
+WO-0116,CUST-0014,F-0016,SYS-0042,2026-04-20,P2,closed,Marcus Webb,Repair heat trace on chemical line,Heat trace failed section near door.,2026-04-23,Completed as described.,300,300
+WO-0117,CUST-0018,F-0020,SYS-0049,2026-04-21,P2,closed,Tomas Rivera,Tower fill inspection,Inspect fill for scale and fouling during shutdown.,2026-05-05,Completed as described.,,
+WO-0118,CUST-0020,F-0023,SYS-0051,2026-04-27,P1,closed,Jenn Fowler,Repack blowdown valve,Valve stem weeping. Repack.,2026-04-29,Completed as described.,260,209
+WO-0119,CUST-0011,F-0013,SYS-0035,2026-04-28,P3,resolved,Tomas Rivera,Calibrate conductivity controller,Controller drifting vs handheld. Calibrate and log.,2026-04-28,Completed as described.,,
+WO-0120,CUST-0014,F-0016,SYS-0041,2026-04-28,P2,closed,Jenn Fowler,Low-water cutoff trip,Boiler tripped on low water. Callout same day.,2026-04-28,"Float chamber blown down, switch tested, returned to service.",0,0
+WO-0121,CUST-0003,F-0004,SYS-0012,2026-04-30,P2,closed,Dale Hardy,Replace chemical feed tubing,"Peristaltic tubing hardened, replace and prime.",2026-05-07,Completed as described.,120,120
+WO-0122,CUST-0021,F-0024,SYS-0052,2026-05-02,P3,open,Jenn Fowler,Biocide pump rebuild,Diaphragm worn. Rebuild kit.,,,210,
+WO-0123,CUST-0003,F-0004,SYS-0012,2026-05-06,P2,closed,Kyle Bishop,Tower fan bearing noise,Customer reported fan bearing noise on cooling tower. Inspect and grease.,2026-05-12,"Bearings greased, vibration normal. Monitor at weekly service.",250,220
+WO-0124,CUST-0007,F-0009,,2026-05-08,P3,open,Marcus Webb,Biocide pump rebuild,Diaphragm worn. Rebuild kit.,,,210,
+WO-0125,CUST-0008,F-0010,,2026-05-10,P2,closed,Jenn Fowler,Calibrate conductivity controller,Controller drifting vs handheld. Calibrate and log.,2026-05-20,Completed as described.,,
+WO-0126,CUST-0005,F-0006,SYS-0019,2026-05-10,P2,open,Jenn Fowler,Replace sight glass,Cracked sight glass on boiler.,,,190,
+WO-0127,CUST-0015,F-0017,SYS-0043,2026-05-12,P2,closed,Rosa Camacho,Replace chemical feed tubing,"Peristaltic tubing hardened, replace and prime.",2026-05-17,Completed as described.,120,192
+WO-0128,CUST-0009,F-0011,,2026-05-14,P2,closed,Dale Hardy,Repair heat trace on chemical line,Heat trace failed section near door.,2026-05-17,Completed as described.,300,300
+WO-0129,CUST-0012,F-0014,SYS-0037,2026-05-18,P3,closed,Jenn Fowler,Update site log binder,Replace water log sheets and post treatment ranges.,2026-05-21,Completed as described.,,
+WO-0130,CUST-0012,F-0014,SYS-0036,2026-05-20,P3,closed,Tomas Rivera,Failed steam traps on east header,Survey found 3 failed traps. Replace during summer shutdown window.,2026-06-03,Traps replaced during shutdown.,1100,1240
+WO-0131,CUST-0011,F-0013,SYS-0035,2026-05-22,P2,closed,Tomas Rivera,Repair heat trace on chemical line,Heat trace failed section near door.,2026-06-01,Completed as described.,300,451
+WO-0132,CUST-0019,F-0022,SYS-0025,2026-05-28,P3,closed,Dale Hardy,Boiler blowdown valve replacement,Bottom blowdown valve seat leaking. Replace at next service.,2026-06-04,"Valve replaced, holds pressure.",420,485
+WO-0133,CUST-0008,F-0010,SYS-0027,2026-05-28,P3,open,Dale Hardy,Repair heat trace on chemical line,Heat trace failed section near door.,,,300,
+WO-0134,CUST-0020,F-0023,SYS-0051,2026-06-03,P3,closed,Tomas Rivera,Repair heat trace on chemical line,Heat trace failed section near door.,2026-06-03,Completed as described.,300,300
+WO-0135,CUST-0022,F-0025,SYS-0054,2026-06-05,P3,closed,Kyle Bishop,Rinse loop circulation pump seal,Replace weeping mechanical seal on rinse tank loop pump.,2026-06-02,"Seal replaced, no leakage at test.",380,395
+WO-0136,CUST-0012,F-0014,SYS-0036,2026-06-07,P1,closed,Rosa Camacho,Softener resin cleaning,"Iron-fouled resin, clean with resin cleaner and verify capacity.",2026-06-07,Completed as described.,350,350
+WO-0137,CUST-0004,F-0005,SYS-0014,2026-06-11,P3,resolved,Rosa Camacho,Chemical containment pallet swap,"Containment pallet cracked, replace.",2026-06-25,Completed as described.,150,150
+WO-0138,CUST-0014,F-0016,SYS-0042,2026-06-12,P2,closed,Jenn Fowler,Biocide pump rebuild,Diaphragm worn. Rebuild kit.,2026-07-03,Completed as described.,210,244
+WO-0139,CUST-0005,F-0006,SYS-0019,2026-06-12,P3,open,Marcus Webb,Investigate closed loop water loss,"Process heating loop taking roughly 2,000 gal/week makeup. No visible leak in mechanical room or trench. Suspect underground section near loading dock. Recommend leak locate service and excavation quote.",,,4800,
+WO-0140,CUST-0018,F-0020,SYS-0049,2026-06-17,P3,open,Tomas Rivera,Evap condenser spray nozzle replacement,"Several spray nozzles eroded, uneven coverage. Parts on order from OEM.",,,900,
+WO-0141,CUST-0020,F-0023,,2026-06-23,P3,closed,Rosa Camacho,Tower fill inspection,Inspect fill for scale and fouling during shutdown.,2026-06-23,Completed as described.,,
+WO-0142,CUST-0006,F-0007,SYS-0022,2026-06-24,P2,resolved,Dale Hardy,Low sulfite / dosing pump fault,"Hotel reports boiler alarm. 6/26 callout found sulfite at 3 ppm and dosing pump not delivering. Temporary manual dose, parts ordered.",2026-07-08,"Replaced dosing pump head, primed, verified feed at rated stroke.",450,612
+WO-0143,CUST-0015,F-0017,SYS-0044,2026-06-25,P2,closed,Dale Hardy,Softener resin cleaning,"Iron-fouled resin, clean with resin cleaner and verify capacity.",2026-06-28,Completed as described.,350,382
+WO-0144,CUST-0022,F-0025,SYS-0054,2026-06-30,P2,resolved,Marcus Webb,Tower fill inspection,Inspect fill for scale and fouling during shutdown.,2026-07-21,Completed as described.,,
+WO-0145,CUST-0005,F-0006,SYS-0020,2026-07-04,P3,closed,Tomas Rivera,Chemical containment pallet swap,"Containment pallet cracked, replace.",2026-07-09,Completed as described.,150,225
+WO-0146,CUST-0004,F-0005,,2026-07-07,P2,closed,Rosa Camacho,Coordinate BMS controller replacement,Customer vendor replacing tower BMS controller 7/14. Coordinate access and post-swap checks.,2026-07-14,Controller replaced by customer vendor. Comms verified.,,
+WO-0147,CUST-0010,F-0012,SYS-0032,2026-07-27,P2,in_progress,Marcus Webb,HP boiler annual inspection prep,"Prepare HP boiler #1 for state inspection: layup chemistry, manway gaskets, logs.",,,1500,
+WO-0148,CUST-0001,F-0001,SYS-0001,2026-08-03,P3,resolved,Jenn Fowler,Repair heat trace on chemical line,Heat trace failed section near door.,2026-08-24,Completed as described.,300,300
+WO-0149,CUST-0013,F-0015,,2026-08-06,P2,open,Dale Hardy,Tower fill inspection,Inspect fill for scale and fouling during shutdown.,,,,
+WO-0150,CUST-0005,F-0006,SYS-0021,2026-08-11,P2,closed,Jenn Fowler,Biocide pump rebuild,Diaphragm worn. Rebuild kit.,2026-08-21,Completed as described.,210,281
+WO-0151,CUST-0007,F-0009,SYS-0025,2026-08-21,P3,in_progress,Tomas Rivera,Replace chemical feed tubing,"Peristaltic tubing hardened, replace and prime.",,,120,

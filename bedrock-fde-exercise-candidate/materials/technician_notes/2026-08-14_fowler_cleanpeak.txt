@@ -1,0 +1,13 @@
+CleanPeak weekly. Jenn F. 8/14/26
+
+The reuse-water tower (SYS-0042) keeps creeping up on conductivity. It sat
+around 1450 in the spring and today I am reading over 1900 for the first time. The bleed valve
+sticks, I cleaned the stem again, but the real story is their reuse water
+feed pushing cycles up. There is a scale film starting on the fill and
+their new plate exchanger will foul fast if this keeps up.
+
+Recommended: firm up the bleed setpoint and consider moving this tower to
+the high-cycles product if they want to keep running reuse water. Needs a
+decision, not just me poking the valve every Friday.
+
+Boiler side normal. Lab sample sent this week per schedule.

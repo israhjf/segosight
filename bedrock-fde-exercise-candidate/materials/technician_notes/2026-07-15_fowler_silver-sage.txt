@@ -1,0 +1,15 @@
+Silver Sage callout, 7/15/26. Jenn F.
+
+Customer BMS lighting up high-conductivity alarms on all four towers since
+last night. Water is FINE. Field meter reads 2850 to 2950 on all four,
+right where the HC-2 program wants them.
+
+What actually happened: their vendor swapped the tower controller on 7/14.
+The old unit reported in one scale, the new one reports in another, and all
+the alarm thresholds carried over unchanged. So the display went from
+numbers like 2.9 to numbers like 2900 overnight and every threshold blew.
+
+Explained to Priya, her vendor is updating the config. Our trend data from
+the BMS export will have the same jump in it, whoever looks at that history
+later needs to know about 7/14 or they will think the towers went crazy.
+Noted here so it is written down somewhere.

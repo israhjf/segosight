@@ -1,0 +1,20 @@
+From: Ray Ostler <rostler@maeserridgehealth.example>
+To: Dana Whitlock <dana.whitlock@segoindustrialwater.example>
+Date: Fri, 28 Aug 2026 11:32:00 -0600
+Subject: Water management program documentation
+
+Dana,
+
+Our safety committee is preparing for an accreditation survey this fall
+and has asked for current documentation on the cooling tower water
+management program: treatment status, biological monitoring results for
+CT-1 and CT-2 for this year, and any exceedances with corrective actions.
+
+Our chief engineer also mentioned your technician has raised concerns
+about CT-2 during recent visits. Please include the status of that item
+specifically.
+
+Can you have this to me within a couple of weeks?
+
+Ray Ostler
+Facilities Director, Maeser Ridge Regional Medical Center

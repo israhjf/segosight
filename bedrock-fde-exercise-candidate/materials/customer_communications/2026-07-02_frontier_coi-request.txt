@@ -1,0 +1,11 @@
+From: Bill Yardley <byardley@frontiercoldstorage.example>
+To: service@segoindustrialwater.example
+Date: Thu, 02 Jul 2026 13:10:00 -0600
+Subject: Certificate of insurance for vendor file
+
+Our corporate office is refreshing the vendor compliance file. Please send
+a current COI naming Frontier Cold Storage as certificate holder, and your
+techs' current ammonia awareness training cards if you have them on file.
+
+Bill Yardley
+Warehouse Operations Manager

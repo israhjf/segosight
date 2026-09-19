@@ -1,0 +1,17 @@
+NOTE TO FILE - lab sample point crosswalk
+Marcus Webb, 4/16/26
+
+Rosa asked me to write down how Central Analytical labels map to our system
+IDs because invoices and reports keep coming in with their codes.
+
+What I am sure of:
+  BONF-OGD-B2  = Bonneville Ogden boiler Unit 2 (SYS-0006)
+  BONF-CLF-B1  = Bonneville Clearfield package boiler (SYS-0009)
+  SALT-HP1 and SALT-HP2 = the two Saltair HP boilers, in order
+
+What I am mostly sure of:
+  CLPK-B1 = CleanPeak laundry boiler
+  MRMC-B1 = Maeser Ridge hospital boiler 1
+
+Somebody should get the lab to just use our IDs. Until then this note is the
+crosswalk.

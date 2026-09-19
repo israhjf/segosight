@@ -1,0 +1,16 @@
+SITE NOTE - Bonneville Foods, Ogden Plant
+Marcus Webb, 3/9/26
+
+Quarterly deep check on Unit 2 boiler (SYS-0006) plus routine on tower and
+sanitation loop.
+
+1. Boiler chemistry in range. Iron 0.25 ppm, normal for a unit this age.
+2. Pulled a sample for Central Analytical. Reminder for whoever reads their
+   reports: the lab uses their own sample point labels, not our system IDs.
+   Ogden boiler Unit 2 shows up on their reports as BONF-OGD-B2.
+3. Condensate return looked slightly dark at the receiver. Amine feed was
+   found off at the last two visits per the log. Re-primed and told the
+   operator to leave the pump on auto.
+4. Softener regen normal, salt bin at half.
+
+Follow-ups: watch condensate iron on this unit going forward.

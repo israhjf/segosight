@@ -1,0 +1,18 @@
+SITE NOTE - Pintura Polymers, Springville
+Marcus Webb, 6/9/26 (written up after 6/10 visit, dated when I started it)
+
+The process heating loop (SYS-0019) is not behaving like a closed loop.
+
+Numbers from 6/10:
+  - Nitrite trough before re-dose: 610 ppm. Target band is 900 to 1200.
+  - Makeup meter: 38,940. That is up about 3,850 gallons since the last
+    service two weeks ago. A tight loop this size should take almost none.
+  - CL-40 dosing this spring has roughly doubled and it still will not hold.
+
+A 5,800 gallon loop drinking 250 to 300 gallons a day of makeup is losing
+water somewhere. Nothing visible in the mechanical room or the trench.
+My bet is the buried run between the boiler house and the loading dock.
+
+Told Gary Timmerman in person. Coming back 6/12 to walk the yard and open a
+work order for a leak locate. Until the leak is found we are pouring
+chemical, and money, straight into the ground.

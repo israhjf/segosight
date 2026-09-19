@@ -1,0 +1,15 @@
+Maeser Ridge Medical, weekly service. Jenn F. 5/11/26
+
+Everything normal except CT-2 (the tower on the surgical wing HVAC side,
+SYS-0004). There is visible slime starting on the fill on the north face.
+Dipslide today read 10^3 which is not awful yet, but this tower has been
+drifting up since April and the bromine residual keeps landing low even
+with the feeder wide open. I think the feed assembly is partially plugged.
+
+Cleaned the injector, dosed BIO-12 as a supplemental kill, brushed off what
+I could reach.
+
+Told Gary C. from hospital maintenance in the plant room. He said he would
+mention it to Ray. This one needs to stay on the radar, it serves the
+surgical wing side and the guideline for healthcare sites is tight for a
+reason.

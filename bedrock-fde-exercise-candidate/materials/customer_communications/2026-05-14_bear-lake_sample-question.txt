@@ -1,0 +1,28 @@
+From: Hal Sorensen <hal.sorensen@bearlakecreamery.example>
+To: service@segoindustrialwater.example
+Date: Thu, 14 May 2026 07:48:00 -0600
+Subject: RE: yesterday's glycol loop reading
+
+Your tech mentioned to my boiler operator that one of yesterday's loop
+samples read acidic before he re-took it. My QA manager saw the number in
+the log book and is now asking questions. Can you confirm in writing which
+reading is the real one? We have an audit in June and she wants the paper
+trail tidy.
+
+Hal
+
+-----Original Message-----
+From: service@segoindustrialwater.example
+Sent: Thu, 14 May 2026 09:02:00 -0600
+To: Hal Sorensen
+
+Hal,
+
+Confirmed in writing: the 6.4 pH value on 5/13 was a bad sample drawn from
+a stagnant dead-leg port, not loop water. The valid reading from the
+correct port the same morning was 8.9, consistent with every prior month.
+Both are labeled in the log. Tomas flagged it in his notes the same day so
+nobody would mistake it later.
+
+Rosa Camacho
+Sego Industrial Water, service coordination

@@ -1,0 +1,143 @@
+# Governed identity crosswalk.
+#
+# Every mapping carries its evidence, confidence and authorization so a
+# reconciliation decision is inspectable rather than buried in pipeline code.
+# This is the seed for canonical.identity_resolution; in production a steward
+# curation action would append to the same table.
+#
+# confidence drives alert gating:
+#   high   - resolved for all purposes, including customer-facing alerts
+#   medium - resolved for display and review, but cannot alone raise a
+#            customer-facing or compliance alert until a steward confirms
+#   low    - held in the review queue, not resolved
+
+# --------------------------------------------------------------------------
+# Duplicate customer accounts
+# --------------------------------------------------------------------------
+[[customer]]
+source_id     = "CUST-0019"
+canonical_id  = "CUST-0007"
+relationship  = "duplicate_merge"
+confidence    = "high"
+effective_from = 2026-03-01
+evidence      = "new_data_batch/communications/2026-09-05_internal_fieldflow-and-merge.txt"
+authorized_by = "Rosa Camacho"
+rationale     = """CUST-0019 ("Timpanogos Bev. Co") retired into CUST-0007 at \
+FieldFlow go-live. Rosa states historical visits and work orders booked under \
+CUST-0019 belong to the same real plant, so the merge applies retroactively \
+across the whole corpus rather than from the go-live date."""
+
+# --------------------------------------------------------------------------
+# Duplicate facility records
+#
+# Both duplicates own zero systems, and every visit or work order booked
+# against them references equipment belonging to the surviving facility. The
+# records contradict themselves; the equipment reference is the ground truth.
+# --------------------------------------------------------------------------
+[[facility]]
+source_id     = "F-0022"
+canonical_id  = "F-0009"
+relationship  = "duplicate_merge"
+confidence    = "high"
+effective_from = 2026-03-01
+evidence      = "new_data_batch/communications/2026-09-05_internal_fieldflow-and-merge.txt"
+authorized_by = "Rosa Camacho"
+rationale     = """F-0022 "Timpanogos Beverage" (1200 West Industrial Parkway, \
+Lindon) is the same site as F-0009 "Bottling Plant" (1200 W Industrial Pkwy, \
+Lindon). F-0022 owns no systems; visits V-0083, V-0154 and V-0271 all service \
+SYS-0025/SYS-0026, and WO-0132 targets SYS-0025 -- all owned by F-0009."""
+
+[[facility]]
+source_id     = "F-0021"
+canonical_id  = "F-0003"
+relationship  = "duplicate_merge"
+confidence    = "medium"
+effective_from = 2026-03-01
+evidence      = "derived: address match, zero owned systems, equipment references"
+authorized_by = "unconfirmed"
+rationale     = """F-0021 "Bonneville Foods Clearfield" (450 Depot Street Bldg A, \
+Clearfield) appears to be the same site as F-0003 "Clearfield Plant" (450 Depot \
+St, Clearfield). F-0021 owns no systems; visits V-0052 and V-0197 both service \
+SYS-0009/SYS-0010, owned by F-0003. Unlike the Timpanogos merge this duplicate \
+is not mentioned in any email or note, so it is inferred and needs Rosa's \
+confirmation."""
+
+# --------------------------------------------------------------------------
+# Contract laboratory sample-point codes
+#
+# Source: technician_notes/2026-04-16_webb_lab-crosswalk.txt. Marcus Webb
+# separated the mappings he was sure of from those he was "mostly sure of";
+# that distinction is preserved as confidence rather than flattened away.
+# Guidelines section 10 records formalizing this crosswalk as a known gap.
+# --------------------------------------------------------------------------
+[[sample_point]]
+source_id = "BONF-OGD-B2"
+canonical_id = "SYS-0006"
+confidence = "high"
+evidence = "technician_notes/2026-04-16_webb_lab-crosswalk.txt"
+authorized_by = "Marcus Webb"
+rationale = "Stated explicitly: Bonneville Ogden boiler Unit 2."
+
+[[sample_point]]
+source_id = "BONF-CLF-B1"
+canonical_id = "SYS-0009"
+confidence = "high"
+evidence = "technician_notes/2026-04-16_webb_lab-crosswalk.txt"
+authorized_by = "Marcus Webb"
+rationale = "Stated explicitly: Bonneville Clearfield package boiler."
+
+[[sample_point]]
+source_id = "SALT-HP1"
+canonical_id = "SYS-0032"
+confidence = "high"
+evidence = "technician_notes/2026-04-16_webb_lab-crosswalk.txt"
+authorized_by = "Marcus Webb"
+rationale = "\"The two Saltair HP boilers, in order\": HP boiler #1."
+
+[[sample_point]]
+source_id = "SALT-HP2"
+canonical_id = "SYS-0033"
+confidence = "high"
+evidence = "technician_notes/2026-04-16_webb_lab-crosswalk.txt"
+authorized_by = "Marcus Webb"
+rationale = "\"The two Saltair HP boilers, in order\": HP boiler #2."
+
+[[sample_point]]
+source_id = "CLPK-B1"
+canonical_id = "SYS-0041"
+confidence = "medium"
+evidence = "technician_notes/2026-04-16_webb_lab-crosswalk.txt"
+authorized_by = "Marcus Webb"
+rationale = """Listed under "what I am mostly sure of". CleanPeak Linen \
+Services owns exactly one boiler (SYS-0041), so the target is unambiguous even \
+though the author hedged; confidence stays medium until confirmed."""
+
+[[sample_point]]
+source_id = "MRMC-B1"
+canonical_id = "SYS-0001"
+confidence = "medium"
+evidence = "technician_notes/2026-04-16_webb_lab-crosswalk.txt"
+authorized_by = "Marcus Webb"
+rationale = """Listed under "what I am mostly sure of". Maeser Ridge has two \
+fire-tube boilers (SYS-0001 "#1", SYS-0002 "#2"), so "boiler 1" is genuinely \
+ambiguous. This is a healthcare account, so a wrong join would place another \
+unit's chemistry into a compliance record: medium confidence, not alert-eligible."""
+
+# --------------------------------------------------------------------------
+# Asset lineage
+#
+# Not a merge. Both identifiers denote real, distinct physical units and
+# neither record is rewritten; the link expresses continuity of service.
+# --------------------------------------------------------------------------
+[[asset_lineage]]
+predecessor_id = "SYS-0006"
+successor_id   = "SYS-0101"
+relationship   = "replacement_rental"
+effective_from = 2026-09-05
+confidence     = "high"
+evidence       = "new_data_batch/systems_update_2026-09.csv; WO-0158; WO-0159"
+authorized_by  = "Rosa Camacho"
+rationale      = """SYS-0006 failed 2026-09-02 (tube failure, oxygen pitting) \
+and was decommissioned; rental SYS-0101 was commissioned 2026-09-05. Rosa is \
+explicit: "Do not 'fix' old records, both IDs are real, they are different \
+physical units." Trend series must not be silently stitched across the two."""

@@ -1,0 +1,61 @@
+# SegoSight source registry.
+#
+# Adding a new data drop is a config change, not a code change: append a
+# [[batches]] entry pointing at the new directory. Entity globs are matched
+# non-recursively inside each batch root, so a renamed file such as
+# `service_visits_2026-09.csv` is picked up by the existing pattern.
+#
+# `sequence` defines supersede precedence. When the same business key appears
+# in more than one batch, the highest sequence wins and the earlier row is
+# retained as superseded evidence. The source carries no version column, so
+# batch order is the only available recency signal.
+
+[corpus]
+# Expected observation window. Values outside it are flagged, never dropped.
+start = 2026-03-01
+end   = 2026-09-30
+
+[[batches]]
+name                  = "legacy"
+sequence              = 1
+root                  = "."
+default_source_system = "ServiceTrak"
+
+[[batches]]
+name                  = "2026-09"
+sequence              = 2
+root                  = "new_data_batch"
+default_source_system = "FieldFlow"
+
+
+[entities.customers]
+glob         = "customers*.csv"
+business_key = ["customer_id", "facility_id"]
+date_columns = ["contract_start", "contract_end"]
+
+[entities.systems]
+glob         = "systems*.csv"
+business_key = ["system_id"]
+date_columns = ["install_date"]
+
+[entities.service_visits]
+glob         = "service_visits*.csv"
+business_key = ["visit_id"]
+date_columns = ["visit_date", "follow_up_date"]
+# Present only in the FieldFlow export; absorbed rather than treated as drift.
+optional_columns = ["source_system"]
+
+[entities.water_readings]
+glob         = "water_readings*.csv"
+business_key = ["reading_id"]
+date_columns = ["timestamp"]
+
+[entities.work_orders]
+glob         = "work_orders*.csv"
+business_key = ["wo_id"]
+date_columns = ["created_date", "resolved_date"]
+
+[entities.chemical_inventory]
+glob         = "chemical_inventory*.csv"
+business_key = ["location", "product_code"]
+date_columns = ["expected_delivery_date", "last_updated"]

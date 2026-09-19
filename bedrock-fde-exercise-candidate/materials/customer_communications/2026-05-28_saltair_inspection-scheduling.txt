@@ -1,0 +1,11 @@
+From: Ivan Petrenko <i.petrenko@saltairminerals.example>
+To: service@segoindustrialwater.example
+Date: Thu, 28 May 2026 16:31:00 -0600
+Subject: State inspection window, HP boiler 1
+
+The state inspector gave us a window of Sept 21 to Oct 2 for HP boiler 1.
+As discussed with Kyle, we want Sego to own the water-side prep: layup
+chemistry, gaskets, and the log package. Please put it on your books now
+so it does not sneak up on us.
+
+Ivan

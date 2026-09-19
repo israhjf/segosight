@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+warehouse/
+*.duckdb
+.DS_Store

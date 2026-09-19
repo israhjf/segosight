@@ -1,0 +1,3 @@
+system_id,facility_id,system_type,description,capacity,operating_parameters,install_date,treatment_program,criticality,status,notes
+SYS-0101,F-0002,steam_boiler,"Boiler Unit 2R (rental, replacing SYS-0006)",400 HP,140 psig,2026-09-05,BP-STD,critical,active,"Replaces SYS-0006 (failed 2026-09-02, decommissioned)."
+SYS-0006,F-0002,steam_boiler,Boiler Unit 2 (process steam),400 HP,140 psig,2005-03-10,BP-STD,critical,decommissioned,Removed from service 2026-09-02 after tube failure.

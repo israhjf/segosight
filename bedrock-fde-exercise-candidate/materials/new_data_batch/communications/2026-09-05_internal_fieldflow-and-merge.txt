@@ -1,0 +1,24 @@
+From: Rosa Camacho <rosa.camacho@segoindustrialwater.example>
+To: All Staff
+Date: Sat, 05 Sep 2026 09:15:00 -0600
+Subject: FieldFlow go-live notes: account merge and ID changes
+
+All,
+
+Three housekeeping items now that FieldFlow is live as of 9/1:
+
+1. The duplicate Timpanogos account is finally merged. CUST-0019
+   ("Timpanogos Bev. Co") is retired; everything lives under CUST-0007
+   (Timpanogos Beverage Co.) going forward. Historical visits and work
+   orders booked under CUST-0019 belong to the same real plant.
+
+2. Bonneville Ogden: the failed Unit 2 boiler (SYS-0006) is decommissioned.
+   The rental unit is in the system as SYS-0101. Readings and visits from
+   9/5 onward reference SYS-0101. Do not "fix" old records, both IDs are
+   real, they are different physical units.
+
+3. Visit exports now come out of FieldFlow. You will notice technician
+   initials instead of full names and American date format. The old
+   ServiceTrak export format is retired.
+
+Rosa
