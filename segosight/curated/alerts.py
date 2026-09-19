@@ -468,3 +468,163 @@ def build(
 
     bulk_insert(conn, TABLE, _COLUMNS, out)
     return len(out)
+
+
+# ---------------------------------------------------------------------------
+# Prose-derived alerting and evidence
+# ---------------------------------------------------------------------------
+
+UNFULFILLED_COMMITMENT = "unfulfilled_commitment"
+UNDOCUMENTED_CONCERN = "undocumented_field_concern"
+
+EVIDENCE_TABLE = f"{CURATED}.alert_evidence"
+
+_EVIDENCE_DDL = f"""
+CREATE OR REPLACE TABLE {EVIDENCE_TABLE} (
+    alert_fingerprint VARCHAR NOT NULL,
+    evidence_kind     VARCHAR NOT NULL,
+    evidence_id       VARCHAR NOT NULL,
+    summary           VARCHAR,
+    quote             VARCHAR,
+    source_file       VARCHAR,
+    authored_on       DATE,
+    confidence_score  DOUBLE,
+    review_status     VARCHAR NOT NULL
+)
+"""
+
+_EVIDENCE_COLUMNS = [
+    "alert_fingerprint", "evidence_kind", "evidence_id", "summary", "quote",
+    "source_file", "authored_on", "confidence_score", "review_status",
+]
+
+
+def attach_prose(
+    conn: duckdb.DuckDBPyConnection,
+    config: Config | None = None,
+    as_of: dt.date | None = None,
+) -> dict[str, int]:
+    """Fold prose extractions into the alert queue.
+
+    Two distinct jobs, per the linking decision:
+
+    * an extraction that corroborates an existing alert is attached to it as
+      evidence, so the CT-2 story gains the technician's own words without the
+      queue gaining a row;
+    * a risk that exists *only* in prose -- a broken promise, a written concern
+      that never became a work order -- becomes its own alert.
+
+    Every prose-derived alert is stamped `evidence_basis = 'prose_pending_review'`
+    so a reader can see the finding rests on an unreviewed extraction. The
+    underlying insight stays `pending_review` regardless; nothing here approves
+    anything.
+    """
+    from .extraction import TABLE as INSIGHTS
+
+    cfg = config or load_config()
+    conn.execute(_EVIDENCE_DDL)
+    conn.execute(
+        f"ALTER TABLE {TABLE} ADD COLUMN IF NOT EXISTS evidence_basis VARCHAR"
+    )
+    conn.execute(
+        f"UPDATE {TABLE} SET evidence_basis = 'structured' WHERE evidence_basis IS NULL"
+    )
+    reference = as_of or conn.execute(
+        f"SELECT max(as_of_date) FROM {TABLE}"
+    ).fetchone()[0]
+
+    context = {
+        row[0]: row
+        for row in conn.execute(
+            f"""SELECT f.facility_id, f.facility_name, f.customer_id,
+                       c.customer_name, c.account_tier, c.acv_usd
+                FROM {FACILITY_TABLE} f
+                LEFT JOIN {CUSTOMER_TABLE} c USING (customer_id)"""
+        ).fetchall()
+    }
+
+    new_alerts: list[tuple] = []
+
+    # --- risks that exist only in prose ----------------------------------
+    for row in conn.execute(
+        f"""SELECT insight_id, insight_type, facility_id, system_id, quote,
+                   summary, due_on, days_overdue, confidence_score, source_file,
+                   authored_on, commitment_subject, fulfillment_basis, author
+            FROM {INSIGHTS}
+            WHERE facility_id IS NOT NULL
+              AND fulfilled IS FALSE
+              AND days_overdue IS NOT NULL
+              AND days_overdue > 0
+            ORDER BY days_overdue DESC"""
+    ).fetchall():
+        (insight_id, insight_type, facility_id, system_id, quote, summary,
+         due_on, days_overdue, confidence, source_file, authored_on,
+         subject, basis, author) = row
+
+        is_commitment = insight_type in ("commitment", "customer_request")
+        risk_class = UNFULFILLED_COMMITMENT if is_commitment else UNDOCUMENTED_CONCERN
+        _, facility_name, customer_id, customer_name, tier, acv = context.get(
+            facility_id, (None, None, None, None, None, None)
+        )
+        severity = "high" if days_overdue > 30 else "medium"
+        if is_commitment and days_overdue > 14:
+            severity = "high"
+
+        if is_commitment:
+            title = f"Commitment to {customer_name or facility_id} is {days_overdue} days past its date"
+            why = (
+                f'"{quote[:220]}" ({author or "Sego"}, {authored_on}); '
+                f"due {due_on}. {basis}."
+            )
+            consequence = (
+                "Guidelines section 9: a commitment made in email and not "
+                "scheduled is a miss waiting to be discovered by the customer. "
+                + (f"Contract value at risk: ${acv:,.0f}/yr." if acv else "")
+            )
+        else:
+            title = f"Field concern open {days_overdue} days with no work order"
+            why = f'"{quote[:220]}" ({author or "technician"}, {authored_on}). {basis}.'
+            consequence = (
+                "Section 9 makes the work order the record and verbal "
+                "notification a courtesy. An unrecorded flag is how the office "
+                "finds out about field concerns late or never."
+            )
+
+        fingerprint = f"{risk_class}:{system_id or facility_id}:{insight_id[-24:]}"
+        new_alerts.append(
+            (
+                fingerprint, fingerprint, risk_class, severity,
+                _score(severity, tier, None), customer_id, customer_name, tier,
+                acv, facility_id, facility_name, system_id, None, None, None,
+                title, why, consequence, author, "prose_extraction", 1,
+                authored_on, authored_on, reference, cfg.rule_version,
+                "prose_pending_review",
+            )
+        )
+
+    bulk_insert(conn, TABLE, _COLUMNS + ["evidence_basis"], new_alerts)
+
+    # --- corroborating evidence for alerts that already exist -------------
+    evidence = conn.execute(
+        f"""SELECT a.fingerprint, i.insight_id, i.summary, i.quote,
+                   i.source_file, i.authored_on, i.confidence_score, i.status
+            FROM {TABLE} a
+            JOIN {INSIGHTS} i
+              ON (i.system_id = a.system_id
+                  OR (i.system_id IS NULL AND i.facility_id = a.facility_id))
+            WHERE a.evidence_basis = 'structured'
+              AND i.facility_id IS NOT NULL"""
+    ).fetchall()
+    bulk_insert(
+        conn, EVIDENCE_TABLE, _EVIDENCE_COLUMNS,
+        [
+            (fp, "prose_extraction", iid, summary, quote[:400], src, authored,
+             confidence, status)
+            for fp, iid, summary, quote, src, authored, confidence, status in evidence
+        ],
+    )
+
+    return {
+        "prose_alerts": len(new_alerts),
+        "evidence_links": len(evidence),
+    }

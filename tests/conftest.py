@@ -9,7 +9,8 @@ from __future__ import annotations
 import pytest
 
 from segosight.canonical import entities, events, identity, visits
-from segosight.curated import alerts, assessments, coverage, microbio, trends
+from segosight.curated import alerts, assessments, coverage, extraction, microbio, trends
+from segosight.ingest import documents
 from segosight.curated.programs import load_config
 from segosight.clean import readings, versioning
 from segosight.ingest.raw import land_all
@@ -46,5 +47,8 @@ def warehouse(registry):
     coverage.build(conn, programs)
     microbio.build(conn, programs)
     alerts.build(conn, programs)
+    documents.build(conn)
+    extraction.build(conn)
+    alerts.attach_prose(conn, programs)
     yield conn
     conn.close()

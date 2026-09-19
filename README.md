@@ -12,11 +12,12 @@ fragmented exports, without anyone hand-cleaning a spreadsheet first.
 ```bash
 python3 -m venv .venv
 ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -m pytest -q          # 226 tests, ~4s
-./.venv/bin/python -m segosight.pipeline # build the warehouse, ~1s
+./.venv/bin/python -m pytest -q          # 277 tests, ~4s
+./.venv/bin/python -m segosight.pipeline # build the warehouse, ~2s
+./.venv/bin/python -m segosight.review list   # the pending-review queue
 ```
 
-Requires Python 3.11+. Two dependencies: `duckdb` (warehouse) and `pytest`.
+Requires Python 3.11+. Three dependencies: `duckdb`, `pypdf`, `pytest`.
 
 Source data is read in place from `bedrock-fde-exercise-candidate/materials/`
 and never modified. Point the pipeline at a different drop with:
@@ -37,6 +38,9 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 | `segosight/canonical/` | Identity resolution, master data, resolved events and visits |
 | `segosight/config/treatment_programs.toml` | Control limits, ladders, cadence, seasonal terms |
 | `segosight/curated/` | Assessments, trends, coverage, escalation, alerts |
+| `segosight/curated/extraction.py` | Prose → reviewable insight candidates |
+| `segosight/curated/llm.py` | Optional local-model enrichment, off by default |
+| `segosight/review.py` | CLI for the human-review gate |
 | `segosight/pipeline.py` | Runnable end-to-end entry point |
 | `tests/` | Unit tests plus corpus-wide validation against the real CSVs |
 
@@ -55,6 +59,9 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 | `curated.coverage_status` | Cadence vs actual, seasonal-aware | Absence is the signal |
 | `curated.microbio_escalation` | §5 ladder plus documentation state | A late work order does not retroactively document |
 | `curated.operational_alert` | Deduplicated, ranked queue | One alert per risk fingerprint |
+| `raw.documents` | Notes and email, text extracted | Failures land visible, never skipped |
+| `curated.extracted_insight` | Prose-derived candidates | Always `pending_review` with a confidence score |
+| `curated.alert_evidence` | Prose attached to alerts | Carries its review status |
 
 ## Incorporating a new data batch
 
@@ -144,6 +151,24 @@ tower actually leaves its band or drifts for 6+ services, because towers cycle
 between bleeds by design; residual loss only when the *trough* is falling, since
 every treated system consumes chemical between doses. Boiler conductivity is
 excluded from scaling entirely — blowdown cycles it deliberately.
+
+**Prose proposes; only a human disposes.** Every fact extracted from a note or
+email lands in `curated.extracted_insight` with `status = 'pending_review'` and
+an explicit `confidence_score`, quoting the sentence it came from. Nothing in
+the pipeline writes an extraction into the identity crosswalk, a control limit
+or a compliance record. Alerts that rest on an unreviewed extraction are
+stamped `evidence_basis = 'prose_pending_review'` so a reader can tell.
+
+**Fulfilment evidence must match the deliverable.** A service visit evidences a
+promised visit. It evidences nothing about a promised accreditation packet, and
+the system says so rather than guessing — Sego has no outbound-document store,
+so those commitments stay `NULL` with the reason stated.
+
+**AI is optional and additive.** The deterministic extractors are the product.
+`--llm` routes the same text through a local open-weight model to propose extra
+candidates at a capped confidence, through the identical review gate. Its main
+failure mode — fabricated quotes — is contained by discarding any candidate
+whose quote is not found verbatim in the source document.
 
 **Chemical doses are mostly unattributable to a system.** 269 of 316
 chemical-bearing visits serve multiple systems, and `chemicals_added` is a flat

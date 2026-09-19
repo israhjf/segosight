@@ -16,8 +16,9 @@ from pathlib import Path
 
 from .canonical import entities, events, identity, visits
 from .clean import readings, versioning
-from .curated import alerts, assessments, coverage, microbio, trends
+from .curated import alerts, assessments, coverage, extraction, microbio, trends
 from .curated.programs import load_config
+from .ingest import documents
 from .ingest.raw import land_all
 from .ingest.registry import load_registry
 from .warehouse import connect
@@ -127,6 +128,43 @@ def run(warehouse_path: Path | str | None = None, materials: Path | None = None)
             LIMIT 5"""
     ).fetchall():
         print(f"  [{row[0]:.2f}] {row[1]:<8} {(row[2] or '-')[:26]:<26} {row[3]}")
+
+    doc_counts = documents.build(conn, materials)
+    print(
+        f"\nUnstructured tier\n  documents: {doc_counts['documents']} "
+        f"({doc_counts['failed']} unextractable)"
+    )
+    insight_counts = extraction.build(conn)
+    print(
+        f"  extracted insights: {insight_counts['insights']} "
+        f"({insight_counts['pending']} pending review)"
+    )
+    for kind, count, unresolved in conn.execute(
+        f"""SELECT insight_type, count(*),
+                   count(*) FILTER (WHERE fulfilled IS FALSE)
+            FROM {extraction.TABLE} GROUP BY 1 ORDER BY 2 DESC"""
+    ).fetchall():
+        print(f"    {kind:<20} {count:<4} ({unresolved} unresolved)")
+
+    prose = alerts.attach_prose(conn, programs)
+    print(
+        f"  prose-derived alerts: {prose['prose_alerts']}; "
+        f"evidence links: {prose['evidence_links']}"
+    )
+
+    grand_total = conn.execute(
+        f"SELECT count(*) FROM {alerts.TABLE}"
+    ).fetchone()[0]
+    print(f"\nOperational alerts (all sources): {grand_total}")
+    print("\nTop 8 by priority")
+    for row in conn.execute(
+        f"""SELECT priority_score, severity, evidence_basis, customer_name, title
+            FROM {alerts.TABLE} ORDER BY priority_score DESC, last_observed DESC
+            LIMIT 8"""
+    ).fetchall():
+        marker = "*" if row[2] == "prose_pending_review" else " "
+        print(f" {marker}[{row[0]:.2f}] {row[1]:<8} {(row[3] or '-')[:24]:<24} {row[4][:58]}")
+    print("  * = rests on an unreviewed prose extraction")
 
     print(f"\nCompleted in {time.perf_counter() - started:.2f}s")
     return conn
