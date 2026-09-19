@@ -483,6 +483,9 @@ _EVIDENCE_DDL = f"""
 CREATE OR REPLACE TABLE {EVIDENCE_TABLE} (
     alert_fingerprint VARCHAR NOT NULL,
     evidence_kind     VARCHAR NOT NULL,
+    -- 'primary'      : the alert exists only because of this extraction
+    -- 'corroborating': the alert stands on structured data and this supports it
+    evidence_role     VARCHAR NOT NULL,
     evidence_id       VARCHAR NOT NULL,
     summary           VARCHAR,
     quote             VARCHAR,
@@ -494,8 +497,9 @@ CREATE OR REPLACE TABLE {EVIDENCE_TABLE} (
 """
 
 _EVIDENCE_COLUMNS = [
-    "alert_fingerprint", "evidence_kind", "evidence_id", "summary", "quote",
-    "source_file", "authored_on", "confidence_score", "review_status",
+    "alert_fingerprint", "evidence_kind", "evidence_role", "evidence_id",
+    "summary", "quote", "source_file", "authored_on", "confidence_score",
+    "review_status",
 ]
 
 
@@ -519,7 +523,7 @@ def attach_prose(
     underlying insight stays `pending_review` regardless; nothing here approves
     anything.
     """
-    from .extraction import TABLE as INSIGHTS
+    from .extraction import PENDING as PENDING_REVIEW, TABLE as INSIGHTS
 
     cfg = config or load_config()
     conn.execute(_EVIDENCE_DDL)
@@ -544,6 +548,7 @@ def attach_prose(
     }
 
     new_alerts: list[tuple] = []
+    primary_rows: list[tuple] = []
 
     # --- risks that exist only in prose ----------------------------------
     for row in conn.execute(
@@ -591,6 +596,9 @@ def attach_prose(
             )
 
         fingerprint = f"{risk_class}:{system_id or facility_id}:{insight_id[-24:]}"
+        primary_rows.append(
+            (insight_id, summary, quote, source_file, authored_on, confidence)
+        )
         new_alerts.append(
             (
                 fingerprint, fingerprint, risk_class, severity,
@@ -603,6 +611,16 @@ def attach_prose(
         )
 
     bulk_insert(conn, TABLE, _COLUMNS + ["evidence_basis"], new_alerts)
+
+    primary_evidence = [
+        (
+            alert[0], "prose_extraction", "primary", insight_id, summary,
+            quote[:400], source_file, authored_on, confidence, PENDING_REVIEW,
+        )
+        for alert, (insight_id, summary, quote, source_file, authored_on, confidence)
+        in zip(new_alerts, primary_rows)
+    ]
+    bulk_insert(conn, EVIDENCE_TABLE, _EVIDENCE_COLUMNS, primary_evidence)
 
     # --- corroborating evidence for alerts that already exist -------------
     evidence = conn.execute(
@@ -618,8 +636,8 @@ def attach_prose(
     bulk_insert(
         conn, EVIDENCE_TABLE, _EVIDENCE_COLUMNS,
         [
-            (fp, "prose_extraction", iid, summary, quote[:400], src, authored,
-             confidence, status)
+            (fp, "prose_extraction", "corroborating", iid, summary, quote[:400],
+             src, authored, confidence, status)
             for fp, iid, summary, quote, src, authored, confidence, status in evidence
         ],
     )

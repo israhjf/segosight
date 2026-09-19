@@ -10,14 +10,25 @@ fragmented exports, without anyone hand-cleaning a spreadsheet first.
 ## Setup
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python -m pytest -q          # 277 tests, ~4s
-./.venv/bin/python -m segosight.pipeline # build the warehouse, ~2s
-./.venv/bin/python -m segosight.review list   # the pending-review queue
+./run.sh            # venv, deps, warehouse, UI build, serve on :8000
 ```
 
-Requires Python 3.11+. Three dependencies: `duckdb`, `pypdf`, `pytest`.
+Then open <http://127.0.0.1:8000>. Use `./run.sh dev` for the Vite dev server
+with hot reload on :5173.
+
+Running the pieces individually:
+
+```bash
+python3 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
+./.venv/bin/python -m pytest -q               # 302 tests, ~6s
+./.venv/bin/python -m segosight.pipeline      # build the warehouse, ~2s
+./.venv/bin/python -m segosight.review list   # pending-review queue (CLI)
+cd ui && pnpm install && pnpm run build       # UI bundle
+```
+
+Requires Python 3.11+ and Node 20+. Python deps: `duckdb`, `pypdf`, `fastapi`,
+`uvicorn`, `pydantic`, `pytest`, `httpx`.
 
 Source data is read in place from `bedrock-fde-exercise-candidate/materials/`
 and never modified. Point the pipeline at a different drop with:
@@ -41,6 +52,10 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 | `segosight/curated/extraction.py` | Prose → reviewable insight candidates |
 | `segosight/curated/llm.py` | Optional local-model enrichment, off by default |
 | `segosight/review.py` | CLI for the human-review gate |
+| `segosight/curated/promotion.py` | Promotes a reviewed insight into governed record |
+| `segosight/api/` | FastAPI: owns the DuckDB lock, serves the API and the UI |
+| `ui/src/theme/` | Material palette, modes, validated chart colours |
+| `ui/src/features/` | review · alerts · pipeline |
 | `segosight/pipeline.py` | Runnable end-to-end entry point |
 | `tests/` | Unit tests plus corpus-wide validation against the real CSVs |
 
@@ -61,7 +76,8 @@ export SEGOSIGHT_MATERIALS=/path/to/materials
 | `curated.operational_alert` | Deduplicated, ranked queue | One alert per risk fingerprint |
 | `raw.documents` | Notes and email, text extracted | Failures land visible, never skipped |
 | `curated.extracted_insight` | Prose-derived candidates | Always `pending_review` with a confidence score |
-| `curated.alert_evidence` | Prose attached to alerts | Carries its review status |
+| `curated.alert_evidence` | Prose attached to alerts | `primary` evidence gates the banner, `corroborating` does not |
+| `curated.customer_commitment` | Promises promoted by a reviewer | Only written after a named human approves |
 
 ## Incorporating a new data batch
 
@@ -169,6 +185,20 @@ so those commitments stay `NULL` with the reason stated.
 candidates at a capped confidence, through the identical review gate. Its main
 failure mode — fabricated quotes — is contained by discarding any candidate
 whose quote is not found verbatim in the source document.
+
+**One process owns the warehouse, so ingestion is a product action.** DuckDB
+permits a single writer. Rather than fight that, the API holds the connection
+and exposes the pipeline as a button, with before/after counts. Re-running is
+safe — the raw tier is content-addressed — and reviewer decisions are re-applied
+after a rebuild rather than reset, because a human judgement is not a derived
+value.
+
+**Chart colours were validated, not chosen by eye.** The Material scheme is
+deliberately monochromatic: its primary and tertiary sit at ΔE 7.9 in normal
+vision, well under the 15 floor, so using them as two chart series would have
+produced a chart most people cannot read. The series ramp in
+`ui/src/theme/chart.ts` is a separate, verified pair for each mode, kept clear
+of the reserved status colours.
 
 **Chemical doses are mostly unattributable to a system.** 269 of 316
 chemical-bearing visits serve multiple systems, and `chemicals_added` is a flat
