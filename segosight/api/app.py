@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from ..paths import REPO_ROOT
-from .dependencies import close_connection, configure, get_connection
+from .dependencies import close_connection, configure, get_database
 from .routes import alerts, overview, pipeline, review
 
 UI_DIST = REPO_ROOT / "ui" / "dist"
@@ -29,7 +29,7 @@ DEV_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    get_connection()
+    get_database()
     yield
     close_connection()
 

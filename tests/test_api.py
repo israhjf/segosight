@@ -212,3 +212,61 @@ class TestAlerts:
 
     def test_unknown_alert_is_404(self, client):
         assert client.get("/api/alerts/no:such:alert").status_code == 404
+
+
+class TestConcurrency:
+    """Regression: concurrent requests must not read each other's result sets.
+
+    The Overview screen fires /api/overview, /api/review and /api/alerts at
+    once. FastAPI runs sync endpoints in a threadpool, and a DuckDB connection
+    holds its result set on the connection itself -- so sharing one across
+    threads made /api/overview deserialise rows belonging to /api/review and
+    fail validation with a 500. Every request now gets its own cursor.
+
+    TestClient issues requests serially, which is exactly why the original bug
+    survived the suite; these tests drive the app from real threads.
+    """
+
+    def test_each_request_gets_an_independent_handle(self, writable_warehouse, monkeypatch):
+        monkeypatch.setattr(dependencies, "_connection", writable_warehouse)
+        first = dependencies.get_connection()
+        second = dependencies.get_connection()
+        assert first is not second
+        assert first is not writable_warehouse
+
+    def test_parallel_endpoints_return_their_own_rows(self, client):
+        import concurrent.futures as futures
+
+        def call(path: str):
+            return client.get(path)
+
+        paths = ["/api/overview", "/api/review?limit=50", "/api/alerts?limit=100"] * 8
+        with futures.ThreadPoolExecutor(max_workers=12) as pool:
+            responses = list(pool.map(call, paths))
+
+        assert all(response.status_code == 200 for response in responses)
+
+        for path, response in zip(paths, responses):
+            body = response.json()
+            if path.startswith("/api/overview"):
+                # The symptom of the bug: strings where integers belong.
+                assert isinstance(body["active_alerts"], int)
+                assert isinstance(body["pending_review"], int)
+                assert body["as_of_date"] == "2026-09-11"
+            else:
+                assert isinstance(body, list) and body
+                assert "insight_id" in body[0] or "alert_id" in body[0]
+
+    def test_parallel_detail_requests_stay_distinct(self, client):
+        import concurrent.futures as futures
+
+        ids = [
+            "corrosion_trend:SYS-0006:iron",
+            "microbio_escalation:SYS-0004:dipslide",
+        ] * 6
+        with futures.ThreadPoolExecutor(max_workers=8) as pool:
+            responses = list(pool.map(lambda i: client.get(f"/api/alerts/{i}"), ids))
+
+        for alert_id, response in zip(ids, responses):
+            assert response.status_code == 200
+            assert response.json()["alert_id"] == alert_id

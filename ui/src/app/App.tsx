@@ -26,27 +26,39 @@ export function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Load the three panels independently. Promise.all would discard every
+  // successful response the moment one endpoint failed, blanking a page that
+  // still had most of its data -- which is what a single failing /api/overview
+  // did: alerts had loaded fine and the queue still rendered "0 active".
   const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const [nextOverview, nextReview, nextAlerts] = await Promise.all([
-        api.overview(),
-        api.reviewQueue(),
-        api.alerts(),
-      ]);
-      setOverview(nextOverview);
-      setReviewItems(nextReview);
-      setAlerts(nextAlerts);
-      setError(null);
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? `Could not reach the API: ${caught.message}`
-          : "Could not reach the API."
-      );
-    } finally {
-      setLoading(false);
-    }
+    const [overviewResult, reviewResult, alertsResult] = await Promise.allSettled([
+      api.overview(),
+      api.reviewQueue(),
+      api.alerts(),
+    ]);
+
+    if (overviewResult.status === "fulfilled") setOverview(overviewResult.value);
+    if (reviewResult.status === "fulfilled") setReviewItems(reviewResult.value);
+    if (alertsResult.status === "fulfilled") setAlerts(alertsResult.value);
+
+    const failures = [
+      ["summary counts", overviewResult],
+      ["review queue", reviewResult],
+      ["alert queue", alertsResult],
+    ]
+      .filter(([, result]) => (result as PromiseSettledResult<unknown>).status === "rejected")
+      .map(([label, result]) => {
+        const reason = (result as PromiseRejectedResult).reason;
+        return `${label} (${reason instanceof Error ? reason.message : "unknown error"})`;
+      });
+
+    setError(
+      failures.length
+        ? `Could not load ${failures.join(" and ")}. The rest of the page is current.`
+        : null
+    );
+    setLoading(false);
   }, []);
 
   useEffect(() => {
