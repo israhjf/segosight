@@ -13,8 +13,6 @@ import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 
 import { useReviewer } from "@/features/review/ReviewerContext";
-import type { Overview } from "@/shared/types";
-import { buildCsv, csvFilename, downloadCsv } from "./csv";
 import { useExportScope } from "./ExportScopeContext";
 
 /**
@@ -28,8 +26,12 @@ import { useExportScope } from "./ExportScopeContext";
  * Print and PDF are the same surface: both open the /report route, which
  * renders the queue flat and expanded with its provenance stamp, and hand it
  * to the browser's print dialog. PDF is what you get by choosing "Save as
- * PDF" there. CSV is generated here from the rows already in memory, so it
- * exports exactly the filtered view the user is looking at.
+ * PDF" there.
+ *
+ * CSV is an archive of two files, built server-side. Governed alerts and
+ * pending insights share four columns out of twenty and are not the same kind
+ * of claim -- one carries a rule version, the other a confidence score -- so
+ * they stay in separate CSVs with a manifest explaining which is which.
  */
 
 type ExportFormat = "print" | "pdf" | "csv";
@@ -41,15 +43,15 @@ const ACTIONS: Array<{
 }> = [
   { id: "print", label: "Print report", icon: PrintOutlinedIcon },
   { id: "pdf", label: "Download as PDF", icon: PictureAsPdfOutlinedIcon },
-  { id: "csv", label: "Download as CSV", icon: TableChartOutlinedIcon },
+  { id: "csv", label: "Download data (ZIP)", icon: TableChartOutlinedIcon },
 ];
 
-export function ExportMenu({ overview }: { overview: Overview | null }) {
+export function ExportMenu() {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const navigate = useNavigate();
   const { reviewer } = useReviewer();
-  const { severity, alerts } = useExportScope();
+  const { severity } = useExportScope();
 
   const open = (event: MouseEvent<HTMLElement>) => setAnchor(event.currentTarget);
   const close = () => setAnchor(null);
@@ -66,23 +68,20 @@ export function ExportMenu({ overview }: { overview: Overview | null }) {
       return;
     }
 
-    if (alerts.length === 0) {
-      setToast("Nothing to export — open the governed alerts tab first.");
-      return;
-    }
+    // A plain GET with Content-Disposition: the browser saves it without the
+    // page needing to hold the bytes. The archive is built from the same
+    // queries the dashboard uses, so it cannot drift from what is on screen.
+    const params = new URLSearchParams({ severity, reviewer });
+    const link = document.createElement("a");
+    link.href = `/api/export/bundle.zip?${params.toString()}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-    const filename = csvFilename(severity, overview?.as_of_date ?? null);
-    downloadCsv(
-      filename,
-      buildCsv({
-        alerts,
-        severity,
-        asOf: overview?.as_of_date ?? null,
-        totalAlerts: overview?.active_alerts ?? alerts.length,
-        reviewer,
-      })
+    const scope = severity === "all" ? "all alerts" : `${severity} alerts`;
+    setToast(
+      `Preparing ${scope} plus the pending review queue — two CSVs in one archive.`
     );
-    setToast(`${filename} — ${alerts.length} row${alerts.length === 1 ? "" : "s"}`);
   };
 
   return (

@@ -15,13 +15,14 @@ import TableRow from "@mui/material/TableRow";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import Typography from "@mui/material/Typography";
+import { alpha } from "@mui/material/styles";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 
 import { useReviewer } from "@/features/review/ReviewerContext";
 import { api } from "@/shared/api/client";
 import { currency, humanize, isoDate, shortDate } from "@/shared/format";
-import type { Alert as AlertType, Overview } from "@/shared/types";
+import type { Alert as AlertType, Overview, ReviewItem } from "@/shared/types";
 
 const PENDING = "pending_review";
 
@@ -40,6 +41,12 @@ const printStyles = (
         ".report-finding": { breakBefore: "page", breakInside: "avoid" },
         ".report-finding:first-of-type": { breakBefore: "auto" },
         ".report-evidence": { breakInside: "avoid" },
+        ".report-part": { breakBefore: "page" },
+        ".report-insight": { breakInside: "avoid" },
+        // thead repeats on every printed page. It is the only reliable way to
+        // put a running banner on each sheet of Part 2 -- a page pulled out of
+        // a stack has to say what it is without the pages around it.
+        ".running-banner": { display: "table-header-group" },
         a: { textDecoration: "none", color: "inherit" },
       },
     }}
@@ -191,6 +198,94 @@ function Finding({ alert, audience }: { alert: AlertType; audience: Audience }) 
   );
 }
 
+function PendingInsight({ item }: { item: ReviewItem }) {
+  return (
+    <Box className="report-insight" sx={{ mb: 2.5 }}>
+      <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap" useFlexGap>
+        <Typography variant="overline" color="text.secondary">
+          {humanize(item.insight_type)}
+        </Typography>
+        <Typography variant="caption" sx={{ fontWeight: 700 }}>
+          {Math.round(item.confidence_score * 100)}% confidence
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          · {item.provenance === "ai" ? "model-proposed" : "rule-extracted"} (
+          {item.extractor})
+        </Typography>
+      </Stack>
+      <Typography variant="body2" sx={{ fontWeight: 600 }}>
+        {item.summary}
+      </Typography>
+      <Typography variant="body2" className="quote" sx={{ mt: 0.5 }}>
+        &ldquo;{item.quote}&rdquo;
+      </Typography>
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+        {[
+          item.customer_name,
+          item.facility_name,
+          item.system_id,
+          item.author,
+          item.authored_on ? shortDate(item.authored_on) : null,
+          item.source_file,
+        ]
+          .filter(Boolean)
+          .join(" · ")}
+        {item.days_overdue != null ? ` · ${item.days_overdue} days overdue` : ""}
+      </Typography>
+    </Box>
+  );
+}
+
+function PendingPart({ items }: { items: ReviewItem[] }) {
+  return (
+    <Box className="report-part" component="section" sx={{ mt: 5 }}>
+      {/*
+        A table purely so the banner lands in a thead and repeats on every
+        printed page. Part 2 must never be readable as governed findings, and
+        on paper the only context a page carries is what is printed on it.
+      */}
+      <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+        <Box component="thead" className="running-banner">
+          <Box component="tr">
+            <Box
+              component="th"
+              sx={{
+                textAlign: "left",
+                p: 1,
+                border: 1,
+                borderColor: "warning.main",
+                bgcolor: (theme) => alpha(theme.palette.warning.main, 0.12),
+              }}
+            >
+              <Typography variant="overline" sx={{ fontWeight: 700, display: "block" }}>
+                Part 2 — Pending review · not governed findings
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Extracted from prose, awaiting human approval. These carry a
+                confidence score, not a rule version.
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+        <Box component="tbody">
+          <Box component="tr">
+            <Box component="td" sx={{ p: 0, pt: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {items.length} item{items.length === 1 ? "" : "s"} awaiting
+                review. The review queue has no severity and is not affected by
+                the Part 1 filter, so this list is complete.
+              </Typography>
+              {items.map((item) => (
+                <PendingInsight key={item.insight_id} item={item} />
+              ))}
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
 /**
  * The printable report, and the source of the PDF.
  *
@@ -208,6 +303,7 @@ export function ReportPage() {
     params.get("audience") === "customer" ? "customer" : "internal"
   );
   const [alerts, setAlerts] = useState<AlertType[] | null>(null);
+  const [pending, setPending] = useState<ReviewItem[]>([]);
   const [overview, setOverview] = useState<Overview | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -215,12 +311,13 @@ export function ReportPage() {
     let active = true;
     // 20 evidence lines rather than the queue's 3: a report carries the whole
     // chain, not a card's worth of it.
-    Promise.allSettled([api.alerts(500, 20), api.overview()]).then(
-      ([alertResult, overviewResult]) => {
+    Promise.allSettled([api.alerts(500, 20), api.overview(), api.reviewQueue(500)]).then(
+      ([alertResult, overviewResult, reviewResult]) => {
         if (!active) return;
         if (alertResult.status === "fulfilled") setAlerts(alertResult.value);
         else setError("Could not load the alert queue.");
         if (overviewResult.status === "fulfilled") setOverview(overviewResult.value);
+        if (reviewResult.status === "fulfilled") setPending(reviewResult.value);
       }
     );
     return () => {
@@ -362,7 +459,7 @@ export function ReportPage() {
       </Table>
 
       <Typography variant="h2" sx={{ fontSize: "1.1rem" }}>
-        Findings
+        {audience === "internal" ? "Part 1 — Governed findings" : "Findings"}
       </Typography>
       {filtered.map((alert) => (
         <Finding key={alert.alert_id} alert={alert} audience={audience} />
@@ -371,6 +468,17 @@ export function ReportPage() {
       {filtered.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           No alerts match this filter.
+        </Typography>
+      )}
+
+      {audience === "internal" && pending.length > 0 && <PendingPart items={pending} />}
+
+      {audience === "customer" && pending.length > 0 && (
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 4, display: "block" }}>
+          {pending.length} further item{pending.length === 1 ? "" : "s"} extracted
+          from internal records {pending.length === 1 ? "is" : "are"} pending
+          review and {pending.length === 1 ? "is" : "are"} not included in this
+          packet.
         </Typography>
       )}
     </Box>

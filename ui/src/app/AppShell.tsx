@@ -77,7 +77,7 @@ export function AppShell({ overview, onRefresh, children }: Props) {
             </Tooltip>
           )}
 
-          <ExportMenu overview={overview} />
+          <ExportMenu />
 
           {/*
             Upload is the weekly action and gets the prominence; rebuilding
