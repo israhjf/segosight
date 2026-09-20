@@ -127,3 +127,75 @@ class PipelineResult(BaseModel):
     after: dict
     delta: dict
     log: list[str]
+
+
+# --- Ingestion review --------------------------------------------------------
+
+
+class EntityPlan(BaseModel):
+    """What one staged file would do to one entity."""
+
+    entity: str
+    file: str
+    rows: int
+    columns: list[str]
+    added_columns: list[str]
+    missing_columns: list[str]
+    new_keys: int
+    superseding_keys: int
+
+
+class DocumentPlan(BaseModel):
+    document_class: str
+    directory: str
+    documents: int
+
+
+class UnmatchedItem(BaseModel):
+    path: str
+    kind: str
+    suggestion: str | None = None
+    suggestion_target: str | None = None
+
+
+class IngestFinding(BaseModel):
+    level: str
+    code: str
+    message: str
+
+
+class IngestProfile(BaseModel):
+    upload_id: str
+    batch_root: str
+    entities: list[EntityPlan] = []
+    documents: list[DocumentPlan] = []
+    unmatched: list[UnmatchedItem] = []
+    absent_entities: list[str] = []
+    findings: list[IngestFinding] = []
+    total_rows: int
+    total_documents: int
+    can_confirm: bool
+
+
+class MappingDecision(BaseModel):
+    path: str
+    kind: str
+    target: str | None = None
+
+
+class ConfirmRequest(BaseModel):
+    uploader: str
+    source_system: str = "Upload"
+    mappings: list[MappingDecision] = []
+
+
+class ConfirmResult(BaseModel):
+    batch_name: str
+    sequence: int
+    files_promoted: int
+    aliases_added: list[str] = []
+    excluded: list[str] = []
+    duration_seconds: float
+    before: dict[str, int]
+    after: dict[str, int]
+    delta: dict[str, int]

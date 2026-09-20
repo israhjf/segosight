@@ -24,17 +24,17 @@ from pathlib import Path
 
 import duckdb
 
+from segosight.features.ingestion.registry import load_registry
 from segosight.shared.paths import materials_root
 from segosight.shared.warehouse import RAW, bulk_insert
 
 TABLE = f"{RAW}.documents"
 
-#: Directories scanned, with the document class each contributes.
-SOURCE_DIRECTORIES = (
-    ("technician_notes", "technician_note", "legacy"),
-    ("customer_communications", "customer_communication", "legacy"),
-    ("new_data_batch/communications", "customer_communication", "2026-09"),
-)
+#: Directories are resolved from `config/sources.toml` rather than listed here.
+#: They used to be a literal tuple, which meant the 2026-09 drop renaming
+#: `customer_communications` to `communications` was absorbed by editing this
+#: module -- a code change for what the registry calls a config change. The
+#: alias list lives with the batches now, so the next rename is a TOML edit.
 
 SUPPORTED_SUFFIXES = frozenset({".txt", ".docx", ".pdf", ".md"})
 
@@ -147,14 +147,19 @@ def build(
     stamp = ingested_at or dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
     conn.execute(_DDL)
 
+    registry = load_registry()
     rows = []
-    for directory, document_class, batch in SOURCE_DIRECTORIES:
-        folder = base / directory
-        if not folder.is_dir():
-            continue
-        for path in sorted(folder.iterdir()):
+    seen: set[Path] = set()
+    for source in registry.document_dirs(base):
+        document_class, batch = source.document_class, source.batch.name
+        for path in sorted(source.path.iterdir()):
             if not path.is_file() or path.suffix.lower() not in SUPPORTED_SUFFIXES:
                 continue
+            # An alias list can resolve two names onto the same directory; land
+            # each document once regardless.
+            if path in seen:
+                continue
+            seen.add(path)
             result = extract(path)
             date, slug, topic = parse_filename(path.stem)
             rows.append(

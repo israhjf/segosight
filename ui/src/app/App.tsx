@@ -22,6 +22,9 @@ const AlertDetailPage = lazy(() =>
 const ReportPage = lazy(() =>
   import("@/features/report").then((module) => ({ default: module.ReportPage }))
 );
+const IngestPage = lazy(() =>
+  import("@/features/ingest").then((module) => ({ default: module.IngestPage }))
+);
 import { OverviewPage } from "@/features/overview/OverviewPage";
 
 export function App() {
@@ -121,6 +124,14 @@ export function App() {
                   loading={loading}
                   onChanged={onChanged}
                 />
+              }
+            />
+            <Route
+              path="/ingest"
+              element={
+                <Suspense fallback={<LinearProgress />}>
+                  <IngestPage />
+                </Suspense>
               }
             />
             <Route

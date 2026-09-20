@@ -59,3 +59,21 @@ date_columns = ["created_date", "resolved_date"]
 glob         = "chemical_inventory*.csv"
 business_key = ["location", "product_code"]
 date_columns = ["expected_delivery_date", "last_updated"]
+
+
+# --- Prose directories -------------------------------------------------------
+#
+# Unstructured documents land by directory, not by glob: the filename carries a
+# date and a slug, never the entity. Each class lists every directory name that
+# has been seen for it, resolved inside each batch root.
+#
+# This is where source drift goes. The 2026-09 drop renamed
+# `customer_communications` to `communications`; that is an alias entry below,
+# not a code change. Adding a name Dana maps in the ingestion review appends
+# here, so the next drop using it resolves automatically.
+
+[documents.technician_note]
+directories = ["technician_notes", "tech_notes", "field_notes"]
+
+[documents.customer_communication]
+directories = ["customer_communications", "communications", "inbox"]

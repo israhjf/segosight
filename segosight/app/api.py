@@ -21,6 +21,7 @@ from segosight.app.dependencies import close_connection, configure, get_database
 from segosight.app import router as overview
 from segosight.features.alerts import router as alerts
 from segosight.features.ingestion import router as pipeline
+from segosight.features.ingestion import upload_router as ingest
 from segosight.features.review import router as review
 
 UI_DIST = REPO_ROOT / "ui" / "dist"
@@ -51,7 +52,7 @@ def create_app(warehouse: Path | str | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    for module in (overview, review, alerts, pipeline):
+    for module in (overview, review, alerts, pipeline, ingest):
         app.include_router(module.router)
 
     if UI_DIST.is_dir():

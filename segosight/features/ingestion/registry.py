@@ -53,10 +53,21 @@ class SourceFile:
 
 
 @dataclass(frozen=True)
+class DocumentDir:
+    """A prose directory resolved for one document class in one batch."""
+
+    document_class: str
+    batch: Batch
+    path: Path
+
+
+@dataclass(frozen=True)
 class Registry:
     corpus: tuple[dt.date, dt.date]
     batches: tuple[Batch, ...]
     entities: dict[str, Entity]
+    #: document class -> every directory name seen for it
+    documents: dict[str, tuple[str, ...]]
 
     def files_for(self, entity_name: str, root: Path | None = None) -> list[SourceFile]:
         """Resolve every file for one entity, ordered by batch sequence.
@@ -80,6 +91,34 @@ class Registry:
 
     def all_files(self, root: Path | None = None) -> list[SourceFile]:
         return [f for name in self.entities for f in self.files_for(name, root)]
+
+    def document_dirs(self, root: Path | None = None) -> list[DocumentDir]:
+        """Resolve every prose directory, ordered by batch sequence.
+
+        A class may match several aliases inside one batch; each existing one
+        is returned, so a drop that ships both the old and the new folder name
+        is landed rather than half-read.
+        """
+        base = root if root is not None else materials_root()
+        found: list[DocumentDir] = []
+        for batch in sorted(self.batches, key=lambda b: b.sequence):
+            batch_dir = (base / batch.root).resolve()
+            for document_class, aliases in sorted(self.documents.items()):
+                for alias in aliases:
+                    candidate = batch_dir / alias
+                    if candidate.is_dir():
+                        found.append(
+                            DocumentDir(
+                                document_class=document_class,
+                                batch=batch,
+                                path=candidate,
+                            )
+                        )
+        return found
+
+    def known_document_dirs(self) -> set[str]:
+        """Every directory name the registry recognises, across all classes."""
+        return {alias for aliases in self.documents.values() for alias in aliases}
 
 
 def load_registry(config_path: Path | None = None) -> Registry:
@@ -113,8 +152,14 @@ def load_registry(config_path: Path | None = None) -> Registry:
         for name, spec in raw["entities"].items()
     }
 
+    documents = {
+        name: tuple(spec["directories"])
+        for name, spec in raw.get("documents", {}).items()
+    }
+
     return Registry(
         corpus=(raw["corpus"]["start"], raw["corpus"]["end"]),
         batches=batches,
         entities=entities,
+        documents=documents,
     )

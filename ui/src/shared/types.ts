@@ -111,3 +111,66 @@ export type PipelineResult = {
   delta: Record<string, number>;
   log: string[];
 };
+
+// --- Ingestion review --------------------------------------------------------
+
+export type EntityPlan = {
+  entity: string;
+  file: string;
+  rows: number;
+  columns: string[];
+  added_columns: string[];
+  missing_columns: string[];
+  new_keys: number;
+  superseding_keys: number;
+};
+
+export type DocumentPlan = {
+  document_class: string;
+  directory: string;
+  documents: number;
+};
+
+export type UnmatchedItem = {
+  path: string;
+  kind: "file" | "directory";
+  suggestion: string | null;
+  suggestion_target: string | null;
+};
+
+export type IngestFinding = {
+  level: "blocking" | "advisory";
+  code: string;
+  message: string;
+};
+
+export type IngestProfile = {
+  upload_id: string;
+  batch_root: string;
+  entities: EntityPlan[];
+  documents: DocumentPlan[];
+  unmatched: UnmatchedItem[];
+  absent_entities: string[];
+  findings: IngestFinding[];
+  total_rows: number;
+  total_documents: number;
+  can_confirm: boolean;
+};
+
+export type MappingDecision = {
+  path: string;
+  kind: "document" | "entity" | "exclude";
+  target?: string | null;
+};
+
+export type ConfirmResult = {
+  batch_name: string;
+  sequence: number;
+  files_promoted: number;
+  aliases_added: string[];
+  excluded: string[];
+  duration_seconds: number;
+  before: Record<string, number>;
+  after: Record<string, number>;
+  delta: Record<string, number>;
+};

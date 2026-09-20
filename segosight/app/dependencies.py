@@ -36,6 +36,25 @@ def configure(path: Path | str | None) -> None:
     _path = path
 
 
+def database_path() -> Path:
+    """Where the live warehouse file sits.
+
+    Needed by the ingestion swap, which builds a replacement beside it.
+    """
+    from segosight.shared.warehouse import warehouse_path
+
+    return Path(_path) if _path is not None else warehouse_path()
+
+
+def reopen() -> duckdb.DuckDBPyConnection:
+    """Close and reopen the database, picking up a swapped file.
+
+    Callers must already hold the write lock.
+    """
+    close_connection()
+    return get_database()
+
+
 def get_database() -> duckdb.DuckDBPyConnection:
     """The long-lived connection that holds the database open."""
     global _connection

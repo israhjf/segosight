@@ -25,7 +25,7 @@ logic, not before a mechanical edit.
 ```bash
 ./run.sh                                       # venv, deps, warehouse, UI build, serve :8000
 ./run.sh dev                                   # API :8000 + Vite dev server :5173
-./.venv/bin/python -m pytest -q                # 307 tests, ~7s
+./.venv/bin/python -m pytest -q                # 349 tests, ~9s
 ./.venv/bin/python -m segosight.app.pipeline   # rebuild the warehouse (~2s)
 ./.venv/bin/python -m segosight.features.review.cli list   # review queue in the terminal
 cd ui && pnpm run build                        # UI bundle

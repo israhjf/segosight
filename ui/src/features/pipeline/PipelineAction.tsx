@@ -12,6 +12,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import MenuItem from "@mui/material/MenuItem";
 import SyncIcon from "@mui/icons-material/Sync";
 
 import { api } from "@/shared/api/client";
@@ -30,7 +33,18 @@ import type { PipelineResult } from "@/shared/types";
  * unchanged files inserts nothing, and reviewer decisions are re-applied after
  * the rebuild rather than reset.
  */
-export function PipelineAction({ onComplete }: { onComplete: () => void }) {
+type Props = {
+  onComplete: () => void;
+  /**
+   * Rebuild is the secondary data action now -- "Upload data" is the one Dana
+   * reaches for weekly. It stays reachable because a rebuild is still needed
+   * after a guideline revision or a config edit, when no new data has arrived.
+   */
+  asMenuItem?: boolean;
+  onInvoke?: () => void;
+};
+
+export function PipelineAction({ onComplete, asMenuItem, onInvoke }: Props) {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<PipelineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -60,15 +74,39 @@ export function PipelineAction({ onComplete }: { onComplete: () => void }) {
 
   return (
     <>
-      <Button
-        size="small"
-        variant="outlined"
-        startIcon={running ? <CircularProgress size={14} /> : <SyncIcon />}
-        onClick={run}
-        disabled={running}
-      >
-        {running ? "Ingesting…" : "Ingest data"}
-      </Button>
+      {asMenuItem ? (
+        <MenuItem
+          onClick={() => {
+            onInvoke?.();
+            void run();
+          }}
+          disabled={running}
+        >
+          <ListItemIcon>
+            {running ? (
+              <CircularProgress size={16} />
+            ) : (
+              <SyncIcon fontSize="small" sx={{ color: "text.secondary" }} />
+            )}
+          </ListItemIcon>
+          <ListItemText
+            primary={running ? "Rebuilding…" : "Rebuild from sources"}
+            secondary="Re-run the rules over existing data"
+            primaryTypographyProps={{ variant: "body2" }}
+            secondaryTypographyProps={{ variant: "caption" }}
+          />
+        </MenuItem>
+      ) : (
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={running ? <CircularProgress size={14} /> : <SyncIcon />}
+          onClick={run}
+          disabled={running}
+        >
+          {running ? "Rebuilding…" : "Rebuild"}
+        </Button>
+      )}
 
       <Dialog
         open={Boolean(result || error)}
