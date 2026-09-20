@@ -2,7 +2,7 @@
 
 Start with `candidate-brief.pdf`. It contains the full assignment,
 constraints, deliverables, and evaluation criteria. The same content is in
-`candidate-brief.md` if you prefer plain text.
+`../context/candidate-brief.md` if you prefer plain text.
 
 `materials/` contains everything the client could give you: two reference
 PDFs, six CSV extracts, technician field notes, a service inbox export, and
