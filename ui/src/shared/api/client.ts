@@ -50,7 +50,8 @@ export const api = {
       }
     ),
 
-  alerts: (limit = 100) => request<Alert[]>(`/api/alerts?limit=${limit}`),
+  alerts: (limit = 100, evidenceLimit = 3) =>
+    request<Alert[]>(`/api/alerts?limit=${limit}&evidence_limit=${evidenceLimit}`),
 
   alert: (alertId: string) =>
     request<AlertDetail>(`/api/alerts/${encodeURIComponent(alertId)}`),

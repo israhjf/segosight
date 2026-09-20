@@ -1,4 +1,5 @@
 import { useState, type MouseEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -11,6 +12,11 @@ import PictureAsPdfOutlinedIcon from "@mui/icons-material/PictureAsPdfOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
 import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
 
+import { useReviewer } from "@/features/review/ReviewerContext";
+import type { Overview } from "@/shared/types";
+import { buildCsv, csvFilename, downloadCsv } from "./csv";
+import { useExportScope } from "./ExportScopeContext";
+
 /**
  * Export actions for the dashboard.
  *
@@ -19,10 +25,11 @@ import TableChartOutlinedIcon from "@mui/icons-material/TableChartOutlined";
  * hospital asking for records they "should be able to produce in an afternoon
  * and currently cannot". So export is a first-class surface, not a convenience.
  *
- * The three actions are placeholders pending the generation backend. They are
- * deliberately left enabled rather than disabled: a disabled control tells a
- * user nothing, while a toast tells them the capability is coming and that
- * their click registered.
+ * Print and PDF are the same surface: both open the /report route, which
+ * renders the queue flat and expanded with its provenance stamp, and hand it
+ * to the browser's print dialog. PDF is what you get by choosing "Save as
+ * PDF" there. CSV is generated here from the rows already in memory, so it
+ * exports exactly the filtered view the user is looking at.
  */
 
 type ExportFormat = "print" | "pdf" | "csv";
@@ -37,18 +44,45 @@ const ACTIONS: Array<{
   { id: "csv", label: "Download as CSV", icon: TableChartOutlinedIcon },
 ];
 
-export function ExportMenu() {
+export function ExportMenu({ overview }: { overview: Overview | null }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { reviewer } = useReviewer();
+  const { severity, alerts } = useExportScope();
 
   const open = (event: MouseEvent<HTMLElement>) => setAnchor(event.currentTarget);
   const close = () => setAnchor(null);
 
+  const query = severity === "all" ? "" : `?severity=${encodeURIComponent(severity)}`;
+
   const choose = (format: ExportFormat) => {
     close();
-    // eslint-disable-next-line no-console -- placeholder until the generator lands
-    console.log(`[export] requested format: ${format}`);
-    setToast("Export feature coming soon.");
+
+    if (format === "print" || format === "pdf") {
+      // Both land on the same document. The report page opens the print
+      // dialog itself, where "Save as PDF" is the destination.
+      navigate(`/report${query}${query ? "&" : "?"}print=1`);
+      return;
+    }
+
+    if (alerts.length === 0) {
+      setToast("Nothing to export — open the governed alerts tab first.");
+      return;
+    }
+
+    const filename = csvFilename(severity, overview?.as_of_date ?? null);
+    downloadCsv(
+      filename,
+      buildCsv({
+        alerts,
+        severity,
+        asOf: overview?.as_of_date ?? null,
+        totalAlerts: overview?.active_alerts ?? alerts.length,
+        reviewer,
+      })
+    );
+    setToast(`${filename} — ${alerts.length} row${alerts.length === 1 ? "" : "s"}`);
   };
 
   return (
@@ -98,7 +132,7 @@ export function ExportMenu() {
         onClose={() => setToast(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert severity="info" variant="filled" onClose={() => setToast(null)}>
+        <Alert severity="success" variant="filled" onClose={() => setToast(null)}>
           {toast}
         </Alert>
       </Snackbar>

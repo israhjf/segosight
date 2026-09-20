@@ -8,6 +8,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
+import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import Table from "@mui/material/Table";
@@ -16,6 +17,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
@@ -95,12 +97,30 @@ export function AlertDetailPage() {
 
   return (
     <Stack spacing={2.5}>
-      <Breadcrumbs>
-        <Link component={RouterLink} to="/" underline="hover" color="inherit">
-          Overview
-        </Link>
-        <Typography color="text.primary">{humanize(detail.risk_class)}</Typography>
-      </Breadcrumbs>
+      {/*
+        The breadcrumb already links home, but it is a small word-sized target.
+        The arrow gives the same trip a button-sized one in the place people
+        reach for it.
+      */}
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Tooltip title="Back to the alert queue">
+          <IconButton
+            component={RouterLink}
+            to="/"
+            size="small"
+            aria-label="Back to the alert queue"
+            sx={{ ml: -0.5 }}
+          >
+            <ArrowBackIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Breadcrumbs sx={{ minWidth: 0 }}>
+          <Link component={RouterLink} to="/" underline="hover" color="inherit">
+            Overview
+          </Link>
+          <Typography color="text.primary">{humanize(detail.risk_class)}</Typography>
+        </Breadcrumbs>
+      </Stack>
 
       <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
         <SeverityChip severity={detail.severity} size="medium" />

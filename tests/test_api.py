@@ -213,6 +213,22 @@ class TestAlerts:
     def test_unknown_alert_is_404(self, client):
         assert client.get("/api/alerts/no:such:alert").status_code == 404
 
+    def test_every_alert_carries_its_rule_version(self, client):
+        """Exports stamp the guideline revision that produced the judgement.
+
+        The value is written on every curated row but used to be dropped at
+        the router, so a report could assert an exceedance without naming the
+        revision it was judged against. That makes it an opinion, not
+        evidence.
+        """
+        alerts = client.get("/api/alerts").json()
+        assert alerts
+        assert all(a["rule_version"] == "treatment_guidelines_rev6" for a in alerts)
+
+    def test_detail_carries_its_rule_version(self, client):
+        detail = client.get("/api/alerts/corrosion_trend:SYS-0006:iron").json()
+        assert detail["rule_version"] == "treatment_guidelines_rev6"
+
 
 class TestConcurrency:
     """Regression: concurrent requests must not read each other's result sets.

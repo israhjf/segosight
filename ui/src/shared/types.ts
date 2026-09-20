@@ -71,6 +71,8 @@ export type Alert = {
   evidence: Evidence[];
   first_observed: string | null;
   last_observed: string | null;
+  /** Guideline revision that produced the judgement, e.g. treatment_guidelines_rev6. */
+  rule_version: string | null;
 };
 
 export type SeriesPoint = {

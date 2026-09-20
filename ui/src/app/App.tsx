@@ -1,9 +1,10 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Outlet, Route, Routes } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import LinearProgress from "@mui/material/LinearProgress";
 import Snackbar from "@mui/material/Snackbar";
 
+import { ExportScopeProvider } from "@/features/export";
 import { ReviewerProvider } from "@/features/review/ReviewerContext";
 import { api } from "@/shared/api/client";
 import type { Alert as AlertType, Overview, ReviewItem } from "@/shared/types";
@@ -15,6 +16,11 @@ const AlertDetailPage = lazy(() =>
   import("@/features/alerts/AlertDetailPage").then((module) => ({
     default: module.AlertDetailPage,
   }))
+);
+// The report is a print surface, not a screen -- keep it out of the main
+// bundle and out of the app shell.
+const ReportPage = lazy(() =>
+  import("@/features/report").then((module) => ({ default: module.ReportPage }))
 );
 import { OverviewPage } from "@/features/overview/OverviewPage";
 
@@ -73,37 +79,60 @@ export function App() {
     [load]
   );
 
+  // A layout route rather than a nested <Routes>: descendant routes under a
+  // splat resolve relative to the parent match, which quietly breaks absolute
+  // child paths like /alerts/:alertId. <Outlet/> has no such subtlety.
+  const shell = (
+    <AppShell overview={overview} onRefresh={load}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+      <Outlet />
+    </AppShell>
+  );
+
   return (
     <ReviewerProvider>
-      <AppShell overview={overview} onRefresh={load}>
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
+      <ExportScopeProvider>
         <Routes>
+          {/*
+            /report renders outside the shell on purpose: printing it must not
+            carry the app bar, and a print stylesheet that hides chrome it
+            never rendered is one less thing to keep in sync.
+          */}
           <Route
-            path="/"
-            element={
-              <OverviewPage
-                overview={overview}
-                reviewItems={reviewItems}
-                alerts={alerts}
-                loading={loading}
-                onChanged={onChanged}
-              />
-            }
-          />
-          <Route
-            path="/alerts/:alertId"
+            path="/report"
             element={
               <Suspense fallback={<LinearProgress />}>
-                <AlertDetailPage />
+                <ReportPage />
               </Suspense>
             }
           />
+          <Route element={shell}>
+            <Route
+              path="/"
+              element={
+                <OverviewPage
+                  overview={overview}
+                  reviewItems={reviewItems}
+                  alerts={alerts}
+                  loading={loading}
+                  onChanged={onChanged}
+                />
+              }
+            />
+            <Route
+              path="/alerts/:alertId"
+              element={
+                <Suspense fallback={<LinearProgress />}>
+                  <AlertDetailPage />
+                </Suspense>
+              }
+            />
+          </Route>
         </Routes>
-      </AppShell>
 
       <Snackbar
         open={Boolean(toast)}
@@ -115,6 +144,7 @@ export function App() {
           {toast}
         </Alert>
       </Snackbar>
+      </ExportScopeProvider>
     </ReviewerProvider>
   );
 }

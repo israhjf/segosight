@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Chip from "@mui/material/Chip";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 
 import { SEVERITY_ORDER } from "@/design-system";
+import { useExportScope } from "@/features/export";
 import type { Alert } from "@/shared/types";
 import { AlertCard } from "./AlertCard";
 
@@ -26,6 +27,14 @@ export function AlertQueue({ alerts, loading, showHeading = true }: Props) {
     () => (severity === "all" ? alerts : alerts.filter((a) => a.severity === severity)),
     [alerts, severity]
   );
+
+  // The Export button sits in the app bar and cannot see this filter, so
+  // publish it. "Export the current view" is only truthful if the exporter
+  // knows what the current view is.
+  const { setScope } = useExportScope();
+  useEffect(() => {
+    setScope({ severity, alerts: filtered });
+  }, [severity, filtered, setScope]);
 
   const counts = useMemo(() => {
     const tally: Record<string, number> = {};

@@ -96,6 +96,10 @@ class AlertSummary(BaseModel):
     evidence: list[Evidence] = []
     first_observed: dt.datetime | None
     last_observed: dt.datetime | None
+    # The guideline revision that produced this judgement. Stamped on every
+    # curated row; exposed here because an exported finding without its rule
+    # version is an opinion, not evidence.
+    rule_version: str | None = None
 
 
 class SeriesPoint(BaseModel):

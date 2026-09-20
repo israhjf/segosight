@@ -20,7 +20,7 @@ SELECT fingerprint, risk_class, severity, priority_score, title, why,
        consequence, customer_id, customer_name, account_tier, acv_usd,
        facility_id, facility_name, system_id, system_label, parameter_code,
        owner, coalesce(evidence_basis, 'structured'), first_observed,
-       last_observed
+       last_observed, rule_version
 FROM {ALERTS}
 """
 
@@ -59,6 +59,7 @@ def _to_summary(row, evidence: list[Evidence]) -> AlertSummary:
         owner=row[16], evidence_basis=row[17],
         unreviewed_evidence=sum(1 for e in evidence if e.review_status == PENDING),
         evidence=evidence, first_observed=row[18], last_observed=row[19],
+        rule_version=row[20],
     )
 
 

@@ -71,7 +71,7 @@ export function AppShell({ overview, onRefresh, children }: Props) {
             </Tooltip>
           )}
 
-          <ExportMenu />
+          <ExportMenu overview={overview} />
           <PipelineAction onComplete={onRefresh} />
           <ThemeMenu />
 
