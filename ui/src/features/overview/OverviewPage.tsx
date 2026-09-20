@@ -86,10 +86,15 @@ type Props = {
 };
 
 export function OverviewPage({ overview, reviewItems, alerts, loading, onChanged }: Props) {
-  // Review first by default: an unreviewed extraction can still change the
-  // governed state, so clearing the queue is the prerequisite for trusting
-  // what the alerts say.
-  const [active, setActive] = useState<TabId>(REVIEW_TAB);
+  // Governed alerts first: Dana opens this to see confirmed operational risk,
+  // not to triage. The pending queue still pulls attention through the stat
+  // tiles and its own tab count when she has time for it.
+  //
+  // The trade-off is deliberate and worth knowing: an unreviewed extraction can
+  // still change the governed picture, so the alert queue on load is ground
+  // truth *as currently reviewed*. The "alerts on unreviewed prose" tile and the
+  // per-card banner are what keep that caveat visible.
+  const [active, setActive] = useState<TabId>(ALERTS_TAB);
   const change = (_: SyntheticEvent, value: TabId) => setActive(value);
 
   return (
@@ -155,14 +160,6 @@ export function OverviewPage({ overview, reviewItems, alerts, loading, onChanged
             }}
           >
             <Tab
-              value={REVIEW_TAB}
-              id={`tab-${REVIEW_TAB}`}
-              aria-controls={`panel-${REVIEW_TAB}`}
-              iconPosition="start"
-              icon={<EditNoteIcon fontSize="small" />}
-              label={`Pending insight review (${reviewItems.length})`}
-            />
-            <Tab
               value={ALERTS_TAB}
               id={`tab-${ALERTS_TAB}`}
               aria-controls={`panel-${ALERTS_TAB}`}
@@ -170,8 +167,20 @@ export function OverviewPage({ overview, reviewItems, alerts, loading, onChanged
               icon={<CrisisAlertIcon fontSize="small" />}
               label={`Governed alerts (${alerts.length} active)`}
             />
+            <Tab
+              value={REVIEW_TAB}
+              id={`tab-${REVIEW_TAB}`}
+              aria-controls={`panel-${REVIEW_TAB}`}
+              iconPosition="start"
+              icon={<EditNoteIcon fontSize="small" />}
+              label={`Pending insight review (${reviewItems.length})`}
+            />
           </Tabs>
         </Box>
+
+        <TabPanel id={ALERTS_TAB} active={active}>
+          <AlertQueue alerts={alerts} loading={loading} showHeading={false} />
+        </TabPanel>
 
         <TabPanel id={REVIEW_TAB} active={active}>
           <ReviewQueue
@@ -180,10 +189,6 @@ export function OverviewPage({ overview, reviewItems, alerts, loading, onChanged
             onChanged={onChanged}
             showHeading={false}
           />
-        </TabPanel>
-
-        <TabPanel id={ALERTS_TAB} active={active}>
-          <AlertQueue alerts={alerts} loading={loading} showHeading={false} />
         </TabPanel>
       </Box>
     </Stack>

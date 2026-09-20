@@ -11,6 +11,7 @@ import WaterDropIcon from "@mui/icons-material/WaterDrop";
 import { Link as RouterLink } from "react-router-dom";
 import type { ReactNode } from "react";
 
+import { ExportMenu } from "@/features/export";
 import { PipelineAction } from "@/features/pipeline/PipelineAction";
 import { useReviewer } from "@/features/review/ReviewerContext";
 import { isoDate } from "@/shared/format";
@@ -70,6 +71,7 @@ export function AppShell({ overview, onRefresh, children }: Props) {
             </Tooltip>
           )}
 
+          <ExportMenu />
           <PipelineAction onComplete={onRefresh} />
           <ThemeMenu />
 
