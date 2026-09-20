@@ -178,6 +178,7 @@ class TestSeasonalWindow:
 
 
 class TestCoverage:
+    @pytest.mark.september
     def test_the_unserviced_a_tier_account_is_critical(self, warehouse):
         row = warehouse.execute(
             f"""SELECT status, days_since_visit, round(cadence_ratio, 1),
@@ -212,6 +213,7 @@ class TestCoverage:
         ).fetchone()[0]
         assert leaked == 0
 
+    @pytest.mark.september
     def test_as_of_date_is_data_derived_not_the_system_clock(self, warehouse):
         as_of = warehouse.execute(
             f"SELECT DISTINCT as_of_date FROM {COVERAGE}"
@@ -245,6 +247,7 @@ class TestMicrobiologicalLadder:
         ).fetchone()[0]
         assert count >= 4
 
+    @pytest.mark.september
     def test_a_late_work_order_does_not_retroactively_document(self, warehouse):
         """WO-0160 was raised 2026-09-09; it cannot close a June escalation."""
         row = warehouse.execute(
@@ -318,6 +321,7 @@ class TestAlertQueue:
         assert "inside its band" in row[1]
         assert "action level" in row[2]
 
+    @pytest.mark.september
     def test_the_closed_loop_collapse_is_surfaced(self, warehouse):
         """Pintura SYS-0019: nitrite 1050 -> 410 with no recovery."""
         row = warehouse.execute(

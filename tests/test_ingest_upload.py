@@ -22,7 +22,7 @@ import pytest
 from segosight.features.ingestion import profile as profiling
 from segosight.features.ingestion import promotion, staging
 from segosight.features.ingestion.registry import DEFAULT_CONFIG, load_registry
-from segosight.shared.paths import materials_root
+from segosight.shared.paths import materials_root, new_batch_root
 
 
 # --------------------------------------------------------------------------
@@ -41,7 +41,7 @@ def staging_area(tmp_path, monkeypatch):
 @pytest.fixture()
 def new_batch_files():
     """The real 2026-09 drop, as a browser would upload the folder."""
-    source = materials_root() / "new_data_batch"
+    source = new_batch_root()
     if not source.is_dir():
         pytest.skip("source material not present")
     return [
@@ -134,6 +134,7 @@ class TestStagingSafety:
 
 
 class TestDirectoryAliases:
+    @pytest.mark.september
     def test_renamed_folder_resolves_through_config(self, registry):
         """`communications` is the 2026-09 rename of `customer_communications`.
 
@@ -153,6 +154,7 @@ class TestDirectoryAliases:
         ).fetchall()
         assert duplicated == []
 
+    @pytest.mark.september
     def test_corpus_document_count_is_unchanged(self, warehouse):
         """Moving directories into config must not change what is ingested."""
         counts = dict(
@@ -201,6 +203,7 @@ class TestProfile:
         }
         assert result.total_rows == 109
 
+    @pytest.mark.september
     def test_reuploading_a_landed_batch_shows_no_new_keys(
         self, staging_area, new_batch_files, writable_warehouse
     ):
@@ -345,6 +348,7 @@ class TestPromotion:
         root.mkdir()
         return root
 
+    @pytest.mark.september
     def test_promote_registers_a_batch_and_copies_files(
         self, staging_area, new_batch_files, writable_warehouse,
         sandbox_config, sandbox_materials, monkeypatch,
@@ -371,6 +375,7 @@ class TestPromotion:
         assert max(b.sequence for b in registry.batches) == promoted.sequence
         assert promoted.sequence > 2
 
+    @pytest.mark.september
     def test_rollback_leaves_no_trace(
         self, staging_area, new_batch_files, writable_warehouse,
         sandbox_config, sandbox_materials, monkeypatch,
@@ -445,6 +450,51 @@ class TestPromotion:
         registry = load_registry(sandbox_config)
         assert "site_notes" in registry.documents["technician_note"]
 
+    @pytest.mark.september
+    def test_dana_can_name_the_batch_and_its_source(
+        self, staging_area, new_batch_files, writable_warehouse,
+        sandbox_config, sandbox_materials, monkeypatch,
+    ):
+        """A drop must be able to declare what it is.
+
+        Source system is not a label: it decides whether the parser expects
+        FieldFlow's M/D/YYYY dates and technician initials or ServiceTrak's
+        ISO timestamps and full names. An upload that could not state it would
+        land every drop as a generic one.
+        """
+        monkeypatch.setattr(promotion, "materials_root", lambda: sandbox_materials)
+        upload = staging.create(new_batch_files)
+        result = profiling.build(writable_warehouse, upload)
+
+        promoted = promotion.promote(
+            upload, result,
+            uploader="Dana Whitlock",
+            batch_name="2026-10",
+            source_system="FieldFlow",
+            config_path=sandbox_config, materials=sandbox_materials,
+        )
+
+        assert promoted.batch_name == "2026-10"
+        registry = load_registry(sandbox_config)
+        batch = next(b for b in registry.batches if b.name == "2026-10")
+        assert batch.default_source_system == "FieldFlow"
+        assert batch.root == "2026-10"
+        assert (sandbox_materials / "2026-10").is_dir()
+
+    def test_requested_name_still_avoids_collisions(
+        self, staging_area, new_batch_files, writable_warehouse,
+        sandbox_materials, monkeypatch,
+    ):
+        """An explicit name does not license overwriting an existing batch."""
+        monkeypatch.setattr(promotion, "materials_root", lambda: sandbox_materials)
+        upload = staging.create(new_batch_files)
+        result = profiling.build(writable_warehouse, upload)
+        (sandbox_materials / "2026-10").mkdir()
+        assert promotion.batch_directory_name(
+            result, upload, materials=sandbox_materials, requested="2026-10"
+        ) == "2026-10-2"
+
+    @pytest.mark.september
     def test_batch_directory_name_never_collides(
         self, staging_area, new_batch_files, writable_warehouse,
         sandbox_materials, monkeypatch,
@@ -466,6 +516,7 @@ class TestPromotion:
 
 
 class TestConfigIntegrity:
+    @pytest.mark.september
     def test_real_config_is_untouched_by_this_module(self):
         """Guard rail: these tests must never write to the shipped config."""
         registry = load_registry()
@@ -479,6 +530,44 @@ class TestConfigIntegrity:
         registry = load_registry()
         sequences = [b.sequence for b in registry.batches]
         assert len(set(sequences)) == len(sequences)
+
+    def test_every_batch_actually_resolves_files(self):
+        """A batch root that points at nothing loads nothing, silently.
+
+        This is the failure mode of moving the corpus: the globs are
+        non-recursive, so a root left pointing one directory too high finds no
+        files, raises no error, and produces a warehouse that builds cleanly
+        with most of the data missing. Assert each batch finds its files.
+        """
+        registry = load_registry()
+        if not materials_root().is_dir():
+            pytest.skip("source material not present")
+
+        for batch in registry.batches:
+            found = [f for f in registry.all_files() if f.batch.name == batch.name]
+            assert found, (
+                f"batch {batch.name!r} (root {batch.root!r}) resolved no files -- "
+                f"its root is probably wrong relative to {materials_root()}"
+            )
+
+    @pytest.mark.september
+    def test_the_corpus_is_whole(self):
+        """Both batches present, with the file counts the corpus has always had."""
+        registry = load_registry()
+        if not materials_root().is_dir():
+            pytest.skip("source material not present")
+
+        per_batch = {b.name: 0 for b in registry.batches}
+        for source in registry.all_files():
+            per_batch[source.batch.name] += 1
+        assert per_batch == {"legacy": 6, "2026-09": 4}
+
+        documents = {d.batch.name: 0 for d in registry.document_dirs()}
+        for directory in registry.document_dirs():
+            documents[directory.batch.name] += sum(
+                1 for p in directory.path.iterdir() if p.is_file()
+            )
+        assert documents == {"legacy": 59, "2026-09": 8}
 
 
 # --------------------------------------------------------------------------

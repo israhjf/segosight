@@ -25,7 +25,7 @@ logic, not before a mechanical edit.
 ```bash
 ./run.sh                                       # venv, deps, warehouse, UI build, serve :8000
 ./run.sh dev                                   # API :8000 + Vite dev server :5173
-./.venv/bin/python -m pytest -q                # 362 tests, ~9s
+./.venv/bin/python -m pytest -q                # 366 tests, ~9s (see Demo mode)
 ./.venv/bin/python -m segosight.app.pipeline   # rebuild the warehouse (~2s)
 ./.venv/bin/python -m segosight.features.review.cli list   # review queue in the terminal
 cd ui && pnpm run build                        # UI bundle
@@ -56,6 +56,10 @@ a parser, check whether it's handling a documented anomaly.
 ## Layout
 
 ```
+data/             the corpus, one directory per batch
+├── initial_data_batch/   CSVs + technician_notes/ + customer_communications/
+└── new_data_batch/       the 2026-09 drop + communications/
+
 segosight/
 ├── app/          FastAPI factory, DuckDB lock, pipeline orchestrator
 ├── features/     one vertical slice per domain, tier sub-folders inside
@@ -82,6 +86,20 @@ content-addressed. `clean` parses and supersedes. `canonical` resolves identity.
 to the matching schema.
 
 ## Rules this system is built on
+
+**Demo mode.** The 2026-09 batch may be commented out of `sources.toml` so it
+can be re-ingested live through the Upload flow. While it is, 43 tests that
+assert conclusions drawn from September data are skipped by
+`pytest_collection_modifyitems` in `tests/conftest.py`, keyed off the config
+rather than hard-coded. Re-registering the batch -- which a completed upload
+does by itself -- brings them back with no code change. Expect
+`323 passed, 43 skipped` in demo mode and `366 passed` otherwise.
+
+**Batch roots live in config, never in code.** `data/` holds no files of its
+own; each batch is a directory named by a `[[batches]]` entry in
+`sources.toml`. Globs are non-recursive, so a root pointing one level too high
+finds nothing, raises no error, and builds a warehouse that is quietly missing
+most of its data. `TestConfigIntegrity` asserts every batch resolves files.
 
 **Thresholds live in config, never in code.** All control limits are in
 `segosight/config/treatment_programs.toml` with a `rule_version` stamped onto

@@ -48,6 +48,7 @@ class TestOverview:
         body = client.get("/api/overview").json()
         assert body["alerts_awaiting_prose_review"] == 9
 
+    @pytest.mark.september
     def test_as_of_is_data_derived(self, client):
         assert client.get("/api/overview").json()["as_of_date"] == "2026-09-11"
 
@@ -250,6 +251,7 @@ class TestConcurrency:
         assert first is not second
         assert first is not writable_warehouse
 
+    @pytest.mark.september
     def test_parallel_endpoints_return_their_own_rows(self, client):
         import concurrent.futures as futures
 

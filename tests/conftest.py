@@ -90,3 +90,44 @@ def writable_warehouse(warehouse_path, tmp_path):
     conn = connect(copy)
     yield conn
     conn.close()
+
+# --- demo mode -------------------------------------------------------------
+#
+# A batch can be deregistered from `sources.toml` -- during a demo, the 2026-09
+# drop is removed so it can be re-ingested live through the upload flow. The
+# tests that assert conclusions drawn from that data are then asserting against
+# a corpus that does not contain it.
+#
+# They are skipped rather than deleted, and the condition is read from the
+# config rather than hard-coded, so re-registering the batch (which the upload
+# flow does automatically) brings them back with no code change.
+
+SEPTEMBER_BATCH = "2026-09"
+
+
+def september_registered() -> bool:
+    try:
+        return any(b.name == SEPTEMBER_BATCH for b in load_registry().batches)
+    except Exception:  # noqa: BLE001 - a broken config is a different failure
+        return True
+
+
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "september: needs the 2026-09 batch registered in sources.toml",
+    )
+
+
+def pytest_collection_modifyitems(config, items):
+    if september_registered():
+        return
+    skip = pytest.mark.skip(
+        reason=(
+            f"demo mode: the {SEPTEMBER_BATCH} batch is deregistered in "
+            f"sources.toml, so the corpus does not contain it"
+        )
+    )
+    for item in items:
+        if "september" in item.keywords:
+            item.add_marker(skip)

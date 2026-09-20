@@ -30,7 +30,7 @@ cd ui && pnpm install && pnpm run build       # UI bundle
 Requires Python 3.11+ and Node 20+. Python deps: `duckdb`, `pypdf`, `fastapi`,
 `uvicorn`, `pydantic`, `pytest`, `httpx`.
 
-Source data is read in place from `bedrock-fde-exercise-candidate/materials/`
+Source data is read in place from `data/`
 and never modified. Point the pipeline at a different drop with:
 
 ```bash

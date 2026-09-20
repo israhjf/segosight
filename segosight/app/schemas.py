@@ -185,6 +185,11 @@ class MappingDecision(BaseModel):
 
 class ConfirmRequest(BaseModel):
     uploader: str
+    #: What to call this batch. Defaults to the uploaded folder's name.
+    batch_name: str | None = None
+    #: The system this export came from. Not cosmetic: it is how downstream
+    #: logic knows to expect FieldFlow's M/D/YYYY dates and technician initials
+    #: rather than ServiceTrak's full names.
     source_system: str = "Upload"
     mappings: list[MappingDecision] = []
 

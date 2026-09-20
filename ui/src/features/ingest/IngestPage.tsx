@@ -12,6 +12,7 @@ import Divider from "@mui/material/Divider";
 import LinearProgress from "@mui/material/LinearProgress";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
+import TextField from "@mui/material/TextField";
 import Stack from "@mui/material/Stack";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
@@ -42,6 +43,16 @@ import type {
 const STEPS = ["Select files", "Review what will change", "Confirm"];
 
 const DOCUMENT_CLASSES = ["technician_note", "customer_communication"] as const;
+
+/**
+ * Systems a drop can come from.
+ *
+ * Not cosmetic. The source system is how downstream parsing knows to expect
+ * FieldFlow's M/D/YYYY dates and technician initials rather than ServiceTrak's
+ * ISO timestamps and full names, so a batch labelled wrongly is a batch parsed
+ * wrongly.
+ */
+const SOURCE_SYSTEMS = ["ServiceTrak", "FieldFlow", "Central Analytical", "BMS", "Other"] as const;
 
 /** Every entity the registry knows, for mapping an unrecognised file. */
 const ENTITIES = [
@@ -205,14 +216,67 @@ function MappingRow({
   );
 }
 
+function BatchIdentity({
+  batchName,
+  setBatchName,
+  sourceSystem,
+  setSourceSystem,
+}: {
+  batchName: string;
+  setBatchName: (value: string) => void;
+  sourceSystem: string;
+  setSourceSystem: (value: string) => void;
+}) {
+  return (
+    <Card variant="outlined">
+      <CardContent>
+        <Typography variant="h3" sx={{ fontSize: "1rem" }}>
+          What is this batch?
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2 }}>
+          Recorded in the source registry against your name, so this drop can
+          always be traced back.
+        </Typography>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+          <TextField
+            label="Batch name"
+            size="small"
+            fullWidth
+            value={batchName}
+            onChange={(event) => setBatchName(event.target.value)}
+            helperText="How this drop appears in the registry"
+          />
+          <TextField
+            select
+            label="Source system"
+            size="small"
+            fullWidth
+            value={sourceSystem}
+            onChange={(event) => setSourceSystem(event.target.value)}
+            helperText="Determines how dates and technician names are read"
+          >
+            {SOURCE_SYSTEMS.map((system) => (
+              <MenuItem key={system} value={system}>
+                {system}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
 function Review({
   profile,
   mappings,
   setMapping,
+  identity,
 }: {
   profile: IngestProfile;
   mappings: Record<string, MappingDecision>;
   setMapping: (path: string, next: MappingDecision) => void;
+  identity: React.ReactNode;
 }) {
   const blocking = profile.findings.filter((f) => f.level === "blocking");
   const advisory = profile.findings.filter((f) => f.level === "advisory");
@@ -220,8 +284,10 @@ function Review({
 
   return (
     <Stack spacing={2.5}>
+      {identity}
+
       <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
-        <Chip label={`Batch: ${profile.batch_root}`} />
+        <Chip label={`Folder: ${profile.batch_root}`} />
         <Chip variant="outlined" label={`${profile.total_rows} rows`} />
         <Chip variant="outlined" label={`${profile.total_documents} documents`} />
       </Stack>
@@ -380,6 +446,8 @@ export function IngestPage() {
   const [result, setResult] = useState<ConfirmResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mappings, setMappings] = useState<Record<string, MappingDecision>>({});
+  const [batchName, setBatchName] = useState("");
+  const [sourceSystem, setSourceSystem] = useState<string>("FieldFlow");
 
   const upload = async (files: File[]) => {
     if (!files.length) return;
@@ -389,6 +457,8 @@ export function IngestPage() {
       const staged = await api.uploadData(files);
       setProfile(staged);
       setMappings({});
+      // Default to the folder's own name; Dana can override it.
+      setBatchName(staged.batch_root);
       setStep(1);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
@@ -402,11 +472,12 @@ export function IngestPage() {
     setBusy(true);
     setError(null);
     try {
-      const confirmed = await api.confirmIngest(
-        profile.upload_id,
-        reviewer,
-        Object.values(mappings)
-      );
+      const confirmed = await api.confirmIngest(profile.upload_id, {
+        uploader: reviewer,
+        batch_name: batchName.trim() || undefined,
+        source_system: sourceSystem,
+        mappings: Object.values(mappings),
+      });
       setResult(confirmed);
       setStep(2);
     } catch (caught) {
@@ -475,6 +546,14 @@ export function IngestPage() {
             mappings={mappings}
             setMapping={(path, next) =>
               setMappings((prev) => ({ ...prev, [path]: next }))
+            }
+            identity={
+              <BatchIdentity
+                batchName={batchName}
+                setBatchName={setBatchName}
+                sourceSystem={sourceSystem}
+                setSourceSystem={setSourceSystem}
+              />
             }
           />
           <Stack direction="row" spacing={1.5} justifyContent="flex-end">

@@ -15,7 +15,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def materials_root() -> Path:
-    """Directory holding the client's source files.
+    """Directory holding the source data batches.
+
+    Each batch is a directory beneath this root, named in `sources.toml`:
+    `initial_data_batch` and `new_data_batch` today. The root itself holds no
+    data files -- a batch must declare itself rather than being swept up by a
+    glob at the top level.
 
     Overridable via SEGOSIGHT_MATERIALS so the pipeline can be pointed at a new
     drop without code changes.
@@ -23,7 +28,7 @@ def materials_root() -> Path:
     override = os.environ.get("SEGOSIGHT_MATERIALS")
     if override:
         return Path(override)
-    return REPO_ROOT / "bedrock-fde-exercise-candidate" / "materials"
+    return REPO_ROOT / "data"
 
 
 def config_dir() -> Path:

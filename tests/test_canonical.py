@@ -102,6 +102,7 @@ class TestFacilityMerge:
 
 
 class TestAssetLineage:
+    @pytest.mark.september
     def test_replacement_is_lineage_not_a_merge(self, warehouse):
         """Both IDs must remain real, distinct systems."""
         merged = warehouse.execute(
@@ -123,6 +124,7 @@ class TestAssetLineage:
         ).fetchone()
         assert row == ("SYS-0006", "SYS-0101", "replacement_rental")
 
+    @pytest.mark.september
     def test_the_failed_unit_is_decommissioned_and_the_rental_active(self, warehouse):
         rows = dict(
             warehouse.execute(

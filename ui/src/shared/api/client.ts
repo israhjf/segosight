@@ -92,10 +92,18 @@ export const api = {
   ingestProfile: (uploadId: string) =>
     request<IngestProfile>(`/api/ingest/${encodeURIComponent(uploadId)}`),
 
-  confirmIngest: (uploadId: string, uploader: string, mappings: MappingDecision[]) =>
+  confirmIngest: (
+    uploadId: string,
+    body: {
+      uploader: string;
+      batch_name?: string;
+      source_system?: string;
+      mappings: MappingDecision[];
+    }
+  ) =>
     request<ConfirmResult>(
       `/api/ingest/${encodeURIComponent(uploadId)}/confirm`,
-      { method: "POST", body: JSON.stringify({ uploader, mappings }) }
+      { method: "POST", body: JSON.stringify(body) }
     ),
 
   discardUpload: (uploadId: string) =>

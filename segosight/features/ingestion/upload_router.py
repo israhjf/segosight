@@ -184,6 +184,7 @@ def confirm(upload_id: str, request: ConfirmRequest) -> ConfirmResult:
                 staged,
                 result,
                 uploader=request.uploader,
+                batch_name=request.batch_name,
                 source_system=request.source_system,
                 mappings=[
                     promotion.Mapping(m.path, m.kind, m.target) for m in request.mappings

@@ -23,26 +23,44 @@ from segosight.features.chemistry.units import (
     parse_units_declaration,
     resolve_parameter,
 )
+from segosight.features.ingestion.registry import load_registry
 from segosight.shared.paths import materials_root, new_batch_root
 
 
+def _batch_root(name: str):
+    """Where a named batch's files live, per the registry.
+
+    Resolved through config rather than assumed, because the batch roots move:
+    the legacy drop sat at the materials root until the corpus was reorganised
+    under data/. Hard-coding the location meant these tests skipped themselves
+    silently when it changed -- thirteen corpus checks stopped running and
+    nothing failed.
+    """
+    registry = load_registry()
+    batch = next(b for b in registry.batches if b.name == name)
+    return materials_root() / batch.root
+
+
 def _read(path):
-    if not path.exists():
-        pytest.skip(f"source material not present: {path}")
+    if not materials_root().is_dir():
+        pytest.skip("source material not present")
+    # Deliberately not a skip: if the corpus is present but this file is not,
+    # a path has gone stale and the test must say so rather than vanish.
+    assert path.exists(), f"expected corpus file is missing: {path}"
     with path.open(newline="", encoding="utf-8-sig") as handle:
         return list(csv.DictReader(handle))
 
 
 @pytest.fixture(scope="module")
 def readings():
-    return _read(materials_root() / "water_readings.csv") + _read(
+    return _read(_batch_root("legacy") / "water_readings.csv") + _read(
         new_batch_root() / "water_readings_2026-09.csv"
     )
 
 
 @pytest.fixture(scope="module")
 def visits():
-    return _read(materials_root() / "service_visits.csv") + _read(
+    return _read(_batch_root("legacy") / "service_visits.csv") + _read(
         new_batch_root() / "service_visits_2026-09.csv"
     )
 
@@ -58,7 +76,7 @@ class TestTimestampCoverage:
 
     def test_both_conventions_are_actually_present_in_the_legacy_file(self):
         """Guards the dictionary's incorrect claim that legacy is ISO-only."""
-        legacy = _read(materials_root() / "water_readings.csv")
+        legacy = _read(_batch_root("legacy") / "water_readings.csv")
         formats = {
             parse_timestamp(r["timestamp"]).detail.get("format") for r in legacy
         }

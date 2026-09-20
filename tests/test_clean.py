@@ -15,12 +15,14 @@ from segosight.features.ingestion.clean.versioning import superseded
 
 
 class TestVersioning:
+    @pytest.mark.september
     def test_only_the_two_known_keys_have_multiple_versions(self, warehouse):
         assert {(e, k) for e, k, _ in superseded(warehouse)} == {
             ("water_readings", "RD-00923"),
             ("systems", "SYS-0006"),
         }
 
+    @pytest.mark.september
     def test_corrected_reading_supersedes_the_original(self, warehouse):
         rows = warehouse.execute(
             f"""SELECT batch_name, is_current, is_superseded
@@ -29,6 +31,7 @@ class TestVersioning:
         ).fetchall()
         assert rows == [("legacy", False, True), ("2026-09", True, False)]
 
+    @pytest.mark.september
     def test_the_superseded_version_is_retained_not_deleted(self, warehouse):
         """Guidelines section 2: annotate rather than delete."""
         count = warehouse.execute(
@@ -36,6 +39,7 @@ class TestVersioning:
         ).fetchone()[0]
         assert count == 2
 
+    @pytest.mark.september
     def test_decommissioned_system_supersedes_its_active_record(self, warehouse):
         current = warehouse.execute(
             f"""SELECT payload FROM {VERSIONS}
@@ -43,6 +47,7 @@ class TestVersioning:
         ).fetchone()[0]
         assert '"status":"decommissioned"' in current.replace(" ", "")
 
+    @pytest.mark.september
     def test_replacement_asset_is_a_separate_identity(self, warehouse):
         """SYS-0101 is a different physical unit, not a rename of SYS-0006."""
         rows = warehouse.execute(
@@ -61,6 +66,7 @@ class TestVersioning:
 
 
 class TestLongFormExplosion:
+    @pytest.mark.september
     def test_one_row_per_populated_parameter(self, warehouse):
         total = warehouse.execute(f"SELECT count(*) FROM {LONG}").fetchone()[0]
         assert total == 6502
@@ -72,6 +78,7 @@ class TestLongFormExplosion:
         ).fetchall()
         assert bad == []
 
+    @pytest.mark.september
     def test_molybdate_is_split_out_from_inhibitor(self, warehouse):
         """Same source column, two parameters, two control bands."""
         counts = dict(
@@ -108,6 +115,7 @@ class TestLongFormExplosion:
 
 
 class TestQuarantine:
+    @pytest.mark.september
     def test_impossible_ph_is_invalid_and_not_current(self, warehouse):
         row = warehouse.execute(
             f"""SELECT quality_status, is_current FROM {LONG}
@@ -116,6 +124,7 @@ class TestQuarantine:
         ).fetchone()
         assert row == ("invalid", False)
 
+    @pytest.mark.september
     def test_the_correction_is_current_and_valid(self, warehouse):
         row = warehouse.execute(
             f"""SELECT normalized_value, quality_status, is_current FROM {LONG}
@@ -134,6 +143,7 @@ class TestQuarantine:
         }
         assert ids == {"RD-00439", "RD-00874", "RD-01486"}
 
+    @pytest.mark.september
     def test_undeclared_units_are_unresolved_not_silently_valid(self, warehouse):
         count = warehouse.execute(
             f"SELECT count(*) FROM {LONG} WHERE quality_status='unresolved'"
@@ -163,6 +173,7 @@ class TestEvidenceIntegrity:
         ).fetchone()
         assert abs(before - after) / before < 0.05
 
+    @pytest.mark.september
     def test_gpg_hardness_becomes_comparable_to_ppm_hardness(self, warehouse):
         value = warehouse.execute(
             f"""SELECT normalized_value FROM {LONG}

@@ -18,14 +18,22 @@ end   = 2026-09-30
 [[batches]]
 name                  = "legacy"
 sequence              = 1
-root                  = "."
+root                  = "initial_data_batch"
 default_source_system = "ServiceTrak"
 
-[[batches]]
-name                  = "2026-09"
-sequence              = 2
-root                  = "new_data_batch"
-default_source_system = "FieldFlow"
+# --- DEREGISTERED FOR DEMO ---------------------------------------------------
+# The September drop is deliberately not registered. The files remain on disk at
+# `data/new_data_batch/`; they are re-ingested live through the Upload data flow,
+# which appends its own [[batches]] entry on confirmation.
+#
+# Re-registering this entry (or completing an upload) restores the full corpus
+# and un-skips the tests marked `@pytest.mark.september`.
+#
+# [[batches]]
+# name                  = "2026-09"
+# sequence              = 2
+# root                  = "new_data_batch"
+# default_source_system = "FieldFlow"
 
 
 [entities.customers]
@@ -77,3 +85,10 @@ directories = ["technician_notes", "tech_notes", "field_notes"]
 
 [documents.customer_communication]
 directories = ["customer_communications", "communications", "inbox"]
+
+# Uploaded by Dana Whitlock on 2026-09-20T04:40:37+00:00 through the ingestion review.
+[[batches]]
+name                  = "new_data_batch-2"
+sequence              = 2
+root                  = "new_data_batch-2"
+default_source_system = "FieldFlow"

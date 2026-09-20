@@ -11,11 +11,13 @@ from segosight.features.ingestion.registry import load_registry
 
 
 class TestRegistry:
+    @pytest.mark.september
     def test_resolves_both_batches_for_a_drifted_entity(self, registry):
         files = registry.files_for("service_visits")
         assert [f.batch.name for f in files] == ["legacy", "2026-09"]
         assert files[1].path.name == "service_visits_2026-09.csv"
 
+    @pytest.mark.september
     def test_renamed_new_batch_file_matches_the_existing_glob(self, registry):
         """systems_update_2026-09.csv is found without a new pattern."""
         names = [f.path.name for f in registry.files_for("systems")]
@@ -26,6 +28,7 @@ class TestRegistry:
             seqs = [f.batch.sequence for f in registry.files_for(entity)]
             assert seqs == sorted(seqs)
 
+    @pytest.mark.september
     def test_source_system_is_attributed_per_batch(self, registry):
         systems = {f.batch.name: f.source_system for f in registry.files_for("water_readings")}
         assert systems == {"legacy": "ServiceTrak", "2026-09": "FieldFlow"}
@@ -65,6 +68,7 @@ business_key = ["id"]
 class TestBusinessKey:
     """Business keys are built in SQL; assert against landed rows."""
 
+    @pytest.mark.september
     def test_single_column_key(self, warehouse):
         got = warehouse.execute(
             f"""SELECT count(*) FROM {RAW_TABLE}
@@ -96,6 +100,7 @@ class TestBusinessKey:
 
 
 class TestRowHash:
+    @pytest.mark.september
     def test_a_corrected_reissue_gets_a_distinct_hash(self, warehouse):
         """Same key, changed payload must be a new version, not a collision."""
         hashes = [
@@ -115,6 +120,7 @@ class TestRowHash:
 
 
 class TestSchemaDrift:
+    @pytest.mark.september
     def test_new_batch_column_is_detected_not_silently_absorbed(self, registry):
         from segosight.shared.warehouse import connect
 
@@ -126,6 +132,7 @@ class TestSchemaDrift:
         assert drifted[0].added_columns == ("source_system",)
         conn.close()
 
+    @pytest.mark.september
     def test_drifted_column_still_lands_in_the_payload(self, warehouse):
         payload = warehouse.execute(
             f"""SELECT payload FROM {RAW_TABLE}
@@ -133,12 +140,14 @@ class TestSchemaDrift:
         ).fetchone()[0]
         assert "FieldFlow" in payload
 
+    @pytest.mark.september
     def test_every_file_records_its_observed_columns(self, warehouse):
         count = warehouse.execute(f"SELECT count(*) FROM {SCHEMA_TABLE}").fetchone()[0]
         assert count == 10
 
 
 class TestLanding:
+    @pytest.mark.september
     def test_every_source_row_lands(self, warehouse):
         counts = dict(
             warehouse.execute(

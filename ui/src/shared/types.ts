@@ -163,6 +163,13 @@ export type MappingDecision = {
   target?: string | null;
 };
 
+export type ConfirmRequest = {
+  uploader: string;
+  batch_name?: string;
+  source_system?: string;
+  mappings: MappingDecision[];
+};
+
 export type ConfirmResult = {
   batch_name: string;
   sequence: number;

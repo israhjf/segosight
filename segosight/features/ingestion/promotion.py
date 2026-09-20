@@ -74,6 +74,7 @@ def batch_directory_name(
     upload: Upload,
     registry: Registry | None = None,
     materials: Path | None = None,
+    requested: str | None = None,
 ) -> str:
     """Directory name for the promoted batch.
 
@@ -84,7 +85,7 @@ def batch_directory_name(
     one back would strip the other.
     """
     registry = registry or load_registry()
-    base = slugify(profile.batch_root or f"upload-{upload.upload_id}")
+    base = slugify(requested or profile.batch_root or f"upload-{upload.upload_id}")
     if base in {"materials", ".", ""}:
         base = f"upload-{upload.upload_id}"
 
@@ -146,6 +147,7 @@ def promote(
     profile: Profile,
     *,
     uploader: str,
+    batch_name: str | None = None,
     source_system: str = "Upload",
     mappings: list[Mapping] | None = None,
     config_path: Path | None = None,
@@ -161,7 +163,9 @@ def promote(
     target_materials = materials or materials_root()
 
     staged_root = resolve_batch_root(upload.root)
-    directory = batch_directory_name(profile, upload, registry, target_materials)
+    directory = batch_directory_name(
+        profile, upload, registry, target_materials, requested=batch_name
+    )
     destination = target_materials / directory
 
     excluded = {m.path for m in (mappings or []) if m.kind == "exclude"}

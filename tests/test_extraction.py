@@ -17,10 +17,12 @@ from segosight.features.review.raw.documents import parse_filename
 
 
 class TestDocumentIngestion:
+    @pytest.mark.september
     def test_every_document_lands(self, warehouse):
         total = warehouse.execute(f"SELECT count(*) FROM {DOCUMENTS}").fetchone()[0]
         assert total == 67
 
+    @pytest.mark.september
     def test_all_three_formats_are_extracted(self, warehouse):
         rows = dict(
             warehouse.execute(
@@ -134,6 +136,7 @@ class TestHumanInTheLoopGate:
 
 
 class TestCommitments:
+    @pytest.mark.september
     def test_the_broken_kestrel_promise_is_found(self, warehouse):
         row = warehouse.execute(
             f"""SELECT due_on, days_overdue, fulfilled, commitment_subject
@@ -179,6 +182,7 @@ class TestFieldConcerns:
         assert "internal inspection" in row[0]
         assert row[2] is False
 
+    @pytest.mark.september
     def test_a_concern_backed_by_a_work_order_is_marked_documented(self, warehouse):
         documented = warehouse.execute(
             f"""SELECT count(*) FROM {INSIGHTS}
@@ -207,6 +211,7 @@ class TestProseAlerting:
         assert bases["prose_pending_review"] > 0
         assert bases["structured"] > 0
 
+    @pytest.mark.september
     def test_the_broken_promise_becomes_its_own_alert(self, warehouse):
         row = warehouse.execute(
             f"""SELECT severity, evidence_basis FROM {ALERTS}
@@ -234,6 +239,7 @@ class TestProseAlerting:
         }
         assert statuses == {PENDING}
 
+    @pytest.mark.september
     def test_structured_alerts_survive_prose_integration(self, warehouse):
         """Module 4's findings must not be displaced by Module 5."""
         structured = warehouse.execute(

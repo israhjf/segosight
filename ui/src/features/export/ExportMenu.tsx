@@ -43,7 +43,7 @@ const ACTIONS: Array<{
 }> = [
   { id: "print", label: "Print report", icon: PrintOutlinedIcon },
   { id: "pdf", label: "Download as PDF", icon: PictureAsPdfOutlinedIcon },
-  { id: "csv", label: "Download data (ZIP)", icon: TableChartOutlinedIcon },
+  { id: "csv", label: "Download CSVs", icon: TableChartOutlinedIcon },
 ];
 
 export function ExportMenu() {
