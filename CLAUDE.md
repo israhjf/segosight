@@ -16,7 +16,9 @@ logic, not before a mechanical edit.
 | `context/decisions.md` | Why the architecture is the way it is; read before proposing a redesign |
 | `context/data-quirks.md` | **Every deliberate trap in the data.** Read before simplifying a parser |
 | `context/findings.md` | What the system concludes, and the evidence chain for each |
-| `context/ontology-design.md` | The reference object model, and where the build diverges |
+| `context/Foundry Ontology Design_ Sego Industrial Water.md` | **Theirs.** The supplied Foundry reference design, converted from the PDF beside it |
+| `context/ontology-design.md` | **Ours.** How this build maps to that design, and where it diverges |
+| `context/data_dictionary_relational_mapping.md` | Field-level source-to-target mapping for the raw corpus |
 
 ## Commands
 

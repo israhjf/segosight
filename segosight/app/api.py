@@ -9,9 +9,9 @@ the product rather than a competing writer.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -61,10 +61,20 @@ def create_app(warehouse: Path | str | None = None) -> FastAPI:
 
         @app.get("/{full_path:path}", include_in_schema=False)
         def serve_ui(full_path: str):
-            """Serve the SPA, letting client-side routing own unknown paths."""
-            candidate = UI_DIST / full_path
-            if full_path and candidate.is_file():
+            """Serve the SPA, letting client-side routing own unknown paths.
+
+            A missing *asset* must 404 rather than fall through to index.html.
+            Returning HTML for a missing .js chunk surfaces as an opaque
+            "Unexpected token '<'" in the browser console, and returning it for
+            /favicon.ico makes a browser render a broken icon instead of falling
+            back to the declared SVG.
+            """
+            candidate = (UI_DIST / full_path).resolve()
+            # Refuse to serve anything outside the bundle directory.
+            if full_path and candidate.is_file() and candidate.is_relative_to(UI_DIST):
                 return FileResponse(candidate)
+            if PurePosixPath(full_path).suffix:
+                raise HTTPException(status_code=404, detail=f"no such asset: {full_path}")
             return FileResponse(UI_DIST / "index.html")
 
     return app
