@@ -274,6 +274,32 @@ and explanation).
 
 ---
 
+## The tiers as built
+
+The physical realisation of the object model above: every table, and the rule it
+obeys. Tiers are DuckDB schemas, not folders. A module's docstring names its
+tier and it writes to the matching schema.
+
+| Tier | Contents | Rule |
+| --- | --- | --- |
+| `raw.records` | Every source row as JSON + provenance, content-addressed | Never deduplicated, corrected or dropped |
+| `clean.record_versions` | Which version of each business key is current | Append-and-supersede, never overwrite |
+| `clean.water_readings_long` | One row per parameter, raw + normalized | Conversion only where the source declared a unit |
+| `canonical.identity_resolution` | Source ID to canonical ID decisions | Every mapping carries evidence, confidence and authorization |
+| `canonical.customer` / `.facility` / `.system` | Master data, merges applied | Surviving record's own attributes win |
+| `canonical.reading_event` | Readings with identity and series resolved | `alert_eligible` gates uncertain identity out of alerting |
+| `curated.reading_assessment` | Program-aware limit judgements | Thresholds come from config, never hard-coded |
+| `curated.trend_signal` | Sustained-movement evidence | Evidence, not alerts |
+| `curated.coverage_status` | Cadence vs actual, seasonal-aware | Absence is the signal |
+| `curated.microbio_escalation` | §5 ladder plus documentation state | A late work order does not retroactively document |
+| `curated.operational_alert` | Deduplicated, ranked queue | One alert per risk fingerprint |
+| `raw.documents` | Notes and email, text extracted | Failures land visible, never skipped |
+| `curated.extracted_insight` | Prose-derived candidates | Always `pending_review` with a confidence score |
+| `curated.alert_evidence` | Prose attached to alerts | `primary` evidence gates the banner, `corroborating` does not |
+| `curated.customer_commitment` | Promises promoted by a reviewer | Only written after a named human approves |
+
+---
+
 ## Divergences
 
 Where SegoSight departs from this design, and why.
