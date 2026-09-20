@@ -4,8 +4,18 @@ An operational attention system for Sego Industrial Water.
 
 ## Quick start
 
+**Prerequisites:** Python 3.11+, Node 20+, and pnpm (`npm install -g pnpm`).
+
+#### macOS / Linux
+
 ```bash
 ./run.sh
+```
+
+#### Windows (PowerShell)
+
+```powershell
+.\run.ps1
 ```
 
 Then open <http://127.0.0.1:8000>.
@@ -14,17 +24,23 @@ That one command creates the virtualenv, installs dependencies, builds the
 warehouse from the source data, builds the UI and serves it. First run takes
 about two minutes, almost all of it `pnpm install`; later runs take seconds.
 
-**Prerequisites:** Python 3.11+, Node 20+, and pnpm (`npm install -g pnpm`).
-
 **Check it worked.** The dashboard should show 41 active alerts, 2 of them
 critical, and 24 items awaiting review. Click any alert to see the evidence
 behind it.
 
-```bash
-./.venv/bin/python -m pytest -q     # 366 tests, ~9s
-```
+#### Running tests
+
+| Platform | Command |
+| --- | --- |
+| macOS / Linux | `./.venv/bin/python -m pytest -q` |
+| Windows | `.\.venv\Scripts\python -m pytest -q` |
+
+366 tests, ~9 s.
 
 ### If you would rather run the pieces
+
+<details>
+<summary>macOS / Linux (bash)</summary>
 
 ```bash
 python3 -m venv .venv
@@ -35,8 +51,28 @@ cd ui && pnpm install && pnpm run build        # UI bundle
 ./.venv/bin/python -m uvicorn segosight.app.api:app --port 8000
 ```
 
-`./run.sh dev` runs the API on :8000 with the Vite dev server and hot reload on
-:5173.
+</details>
+
+<details>
+<summary>Windows (PowerShell)</summary>
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+.\.venv\Scripts\python -m segosight.app.pipeline   # build the warehouse, ~2s
+.\.venv\Scripts\python -m pytest -q                # 366 tests, ~9s
+cd ui; pnpm install; pnpm run build; cd ..         # UI bundle
+.\.venv\Scripts\python -m uvicorn segosight.app.api:app --port 8000
+```
+
+</details>
+
+#### Dev mode (hot reload)
+
+| Platform | Command | Result |
+| --- | --- | --- |
+| macOS / Linux | `./run.sh dev` | API on :8000, Vite dev server on :5173 |
+| Windows | `.\run.ps1 dev` | API on :8000, Vite dev server on :5173 |
 
 ### Two things worth knowing
 
@@ -48,7 +84,13 @@ data** button in the UI, or stop the server first.
 from source in about two seconds:
 
 ```bash
+# macOS / Linux
 rm -rf warehouse && ./run.sh
+```
+
+```powershell
+# Windows
+Remove-Item -Recurse -Force warehouse; .\run.ps1
 ```
 
 ## Where to look first
