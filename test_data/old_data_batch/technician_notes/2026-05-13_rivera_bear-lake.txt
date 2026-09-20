@@ -1,0 +1,12 @@
+Bear Lake Creamery, weekly. T. Rivera 5/13/26
+
+Heads up on today's log so nobody panics later: my first chilled-loop
+sample came off the dead-leg port by the filter and read pH 6.4. That port
+had been sitting stagnant with old glycol. Flushed and re-drew from the
+correct port on the return line: pH 8.9, inhibitor normal, which matches
+every other month this year.
+
+Both readings are in the log because I wrote the first one down before I
+caught it. The 6.4 is the bad sample, not the loop. Labeled both.
+
+Rest of site normal.

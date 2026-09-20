@@ -1,0 +1,12 @@
+Oquirrh Microfab - Aaron S - 8/27/26 (8/25 visit, catching up on notes)
+
+Routine on the tower plus the big chiller loop (the tool cooling one, I
+always mix up which SYS number is which, the chilled loop is the one ending
+in 44 I think). Moly came in at 210 which the book says is a little under
+target so I added a gallon of M-40. Is 210 actually a problem? Need to ask
+Marcus, the book's table and the appendix say slightly different things for
+this loop class.
+
+Softener checked, salt fine, hardness slip zero. Tower normal at 1520.
+
+Their engineer Ken asked for SDS sheets again, told the office.

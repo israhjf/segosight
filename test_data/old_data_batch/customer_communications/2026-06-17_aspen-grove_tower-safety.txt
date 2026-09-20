@@ -1,0 +1,29 @@
+From: Nancy Drechsel <ndrechsel@aspengrovesl.example>
+To: service@segoindustrialwater.example
+Date: Wed, 17 Jun 2026 10:20:00 -0600
+Subject: Cooling tower testing question from a resident family
+
+Hello,
+
+A resident's daughter saw a news story about cooling towers and building
+outbreaks and asked what we do. Can you send me a short plain-language
+confirmation that our tower is on a treatment and testing program and that
+recent results are normal? One paragraph is plenty, it is for a family
+newsletter, not lawyers.
+
+Nancy
+
+-----Original Message-----
+From: service@segoindustrialwater.example
+Sent: Thu, 18 Jun 2026 08:44:00 -0600
+To: Nancy Drechsel
+
+Nancy,
+
+Happy to. Your cooling tower is on a continuous treatment program with an
+oxidizing biocide, and we test biological activity with a dipslide culture
+at every monthly service. Recent results have all been in the lowest
+normal category. Your tower's counts have been consistently low all year.
+
+Rosa Camacho, for the service team
+Sego Industrial Water

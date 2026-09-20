@@ -1,0 +1,20 @@
+From: Anita Okafor <aokafor@pinturapolymers.example>
+To: accounts@segoindustrialwater.example
+Cc: Gary Timmerman <gtimmerman@pinturapolymers.example>
+Date: Fri, 14 Aug 2026 15:47:00 -0600
+Subject: Chemical charges trend, need explanation before renewal
+
+To whom it concerns,
+
+I run finance for Pintura. Comparing your invoices: our monthly chemical
+charges have nearly doubled since March, driven almost entirely by the
+LoopSafe CL-40 line item. Volume, not price. Before we renew the service
+agreement for next year I need a written explanation of why consumption is
+rising and what your plan is to bring it back down.
+
+Gary tells me there is a suspected leak. If treating around a known leak
+is the plan, I would like to see the math on fixing it instead.
+
+Regards,
+Anita Okafor
+CFO, Pintura Polymers

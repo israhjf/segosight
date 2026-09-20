@@ -1,0 +1,18 @@
+From: Teresa Maughan <teresa.maughan@bonnevillefoods.example>
+To: service@segoindustrialwater.example
+Date: Tue, 31 Mar 2026 15:22:00 -0600
+Subject: Clearfield paperwork facility number
+
+Hi,
+
+Small thing from our AP team: this month's Clearfield service ticket came
+through addressed to "Bonneville Foods Clearfield" with a facility number
+that does not match the one on your other Clearfield paperwork. They want
+to know which record is the real one before they map invoices to it. Can
+someone on your side clean that up?
+
+Thanks,
+Teresa
+
+Teresa Maughan
+Plant Engineering Manager, Bonneville Foods

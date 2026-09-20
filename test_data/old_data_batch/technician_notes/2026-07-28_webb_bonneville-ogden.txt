@@ -1,0 +1,19 @@
+SITE NOTE - Bonneville Foods, Ogden Plant
+Marcus Webb, 7/28/26
+
+Unit 2 boiler (SYS-0006) again. Iron came in at 1.3 ppm today. Every single
+reading is still under the 2.0 action limit in the book, but I have watched
+this number walk up from 0.25 in March, month after month, same direction
+every time. A boiler does not do that for no reason. The book's own trend
+language says a sustained rise like this is active corrosion and should be
+investigated, whatever the single-sample limit says.
+
+Found rust staining at the DA vent and the condensate receiver overflow.
+Amine feed keeps getting shut off by their operators when the smell bothers
+them at the packaging line, so condensate pH sits on the low side and we
+eat metal a little at a time.
+
+Told Teresa's day supervisor. Recommending a proper condensate survey and
+an internal inspection at the fall outage. Putting it in my notes because I
+have said it out loud twice now and it has gone nowhere. This is a 2005
+boiler carrying their whole process line.

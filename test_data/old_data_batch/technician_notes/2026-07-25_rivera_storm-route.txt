@@ -1,0 +1,10 @@
+Route note, T. Rivera 7/25/26
+
+The storm system that came through 7/20 and 7/21 dumped a lot of water into
+every open tower on the north end. Mountainland's chiller tower and both
+Frontier condensers read low on conductivity at the 7/22 visits, roughly a
+third below normal. That is dilution, not a treatment failure. They will
+cycle back up on their own inside a week.
+
+Do not chase the setpoints and do not "correct" the inhibitor feed based on
+those readings. Logged the same in the visit observations.

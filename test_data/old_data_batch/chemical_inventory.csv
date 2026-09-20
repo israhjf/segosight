@@ -1,0 +1,27 @@
+location,product_code,product_name,quantity_on_hand,unit,reorder_level,avg_monthly_usage,on_order_qty,expected_delivery_date,last_updated,notes
+Warehouse - SLC,CT-770,CoolTreat 770 phosphonate inhibitor,14,pail,8,9.0,0,,2026-08-31,
+Warehouse - SLC,CT-785,CoolTreat 785 high-cycles inhibitor,6,pail,4,3.5,4,2026-09-16,2026-08-31,
+Warehouse - SLC,BW-210,BoilerShield 210 sulfite blend,11,pail,6,7.0,6,2026-09-18,2026-08-31,
+Warehouse - SLC,BW-305,BoilerShield 305 alkalinity builder,9,pail,5,4.0,0,,2026-08-31,
+Warehouse - SLC,AM-115,SteamGuard AM-115 condensate amine,7,jug,4,3.0,0,,2026-08-31,
+Warehouse - SLC,BIO-12,BioHalt 12 isothiazolone biocide,5,pail,4,3.2,6,2026-09-16,2026-08-31,
+Warehouse - SLC,BRM-40,BromMax 40 bromine tablets,12,pail,6,4.0,0,,2026-08-31,
+Warehouse - SLC,CL-40,LoopSafe CL-40 nitrite/borate,2,drum,6,5.5,8,2026-09-25,2026-08-31,Usage up sharply since May. Delivery date per Redcliff 9/5 email.
+Warehouse - SLC,CL-M40,LoopSafe M-40 molybdate,4,drum,3,1.5,0,,2026-08-31,
+Warehouse - SLC,AC-50,pHase AC-50 sulfuric acid 50%,3,carboy,2,0.8,0,,2026-08-31,
+Warehouse - SLC,SALT,"Solar salt, softener grade",38,bag,20,15.0,0,,2026-08-31,
+Truck - D. Hardy,BW-210,BoilerShield 210 sulfite blend,3,pail,2,,0,,2026-08-31,
+Truck - D. Hardy,BW-305,BoilerShield 305 alkalinity builder,2,pail,1,,0,,2026-08-31,
+Truck - D. Hardy,CL-40,LoopSafe CL-40 nitrite/borate,0.5,drum,0.5,,0,,2026-08-31,Partial drum.
+Truck - M. Webb,BW-210,BoilerShield 210 sulfite blend,2,pail,2,,0,,2026-08-31,
+Truck - M. Webb,CT-770,CoolTreat 770 phosphonate inhibitor,3,pail,2,,0,,2026-08-31,
+Truck - M. Webb,CL-40,LoopSafe CL-40 nitrite/borate,1,drum,0.5,,0,,2026-08-31,Committed to Pintura route.
+Truck - J. Fowler,CT-770,CoolTreat 770 phosphonate inhibitor,4,pail,2,,0,,2026-08-31,
+Truck - J. Fowler,CT-785,CoolTreat 785 high-cycles inhibitor,2,pail,1,,0,,2026-08-31,
+Truck - J. Fowler,BIO-12,BioHalt 12 isothiazolone biocide,1,pail,1,,0,,2026-08-31,
+Truck - J. Fowler,BRM-40,BromMax 40 bromine tablets,2,pail,1,,0,,2026-08-31,
+Truck - T. Rivera,CT-770,CoolTreat 770 phosphonate inhibitor,2,pail,2,,0,,2026-08-31,
+Truck - T. Rivera,BW-210,BoilerShield 210 sulfite blend,2,pail,1,,0,,2026-08-31,
+Truck - T. Rivera,CL-M40,LoopSafe M-40 molybdate,0.5,drum,0.5,,0,,2026-08-31,Partial drum.
+Truck - A. Silva,BW-210,BoilerShield 210 sulfite blend,1,pail,1,,0,,2026-08-31,
+Truck - A. Silva,CT-770,CoolTreat 770 phosphonate inhibitor,1,pail,1,,0,,2026-08-31,

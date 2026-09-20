@@ -1,0 +1,14 @@
+From: Lena Aldous <laldous@redrockhospitality.example>
+To: service@segoindustrialwater.example
+Cc: Dana Whitlock <dana.whitlock@segoindustrialwater.example>
+Date: Wed, 29 Jul 2026 09:12:00 -0600
+Subject: RE: Zion View boiler alarms every morning
+
+Dana,
+
+The alarms are back. Same pattern as June, low treatment reading first
+thing in the morning. I was told on July 8 this was fixed and the work
+order closed. If the fix did not hold I need to know what the actual plan
+is, not another pump part. August is our peak month.
+
+Lena

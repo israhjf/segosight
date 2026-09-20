@@ -1,0 +1,10 @@
+From: Ken Nakamura <k.nakamura@oquirrhmicrofab.example>
+To: service@segoindustrialwater.example
+Date: Tue, 18 Aug 2026 09:26:00 -0600
+Subject: SDS binder refresh
+
+Second request through your tech: our EHS audit needs current SDS sheets
+for every product stored on our site, including the molybdate drum in the
+chase. PDF by email is fine.
+
+Ken

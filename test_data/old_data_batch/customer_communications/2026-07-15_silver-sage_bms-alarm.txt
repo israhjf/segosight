@@ -1,0 +1,33 @@
+From: Priya Shah <p.shah@silversagedata.example>
+To: Dana Whitlock <dana.whitlock@segoindustrialwater.example>
+Date: Wed, 15 Jul 2026 06:58:00 -0600
+Subject: URGENT tower water alarms since last night
+
+Dana,
+
+Since the controller swap yesterday our BMS shows tower conductivity going
+from around 2.9 to over 2900 overnight on all four cells and every high
+alarm is latched. NOC woke me up at 5. Is something actually wrong with
+the water? If we have a real excursion on all four towers at once I need
+to start load planning right now.
+
+Please advise ASAP.
+
+Priya
+
+-----Original Message-----
+From: Dana Whitlock <dana.whitlock@segoindustrialwater.example>
+Sent: Wed, 15 Jul 2026 07:40:00 -0600
+To: Priya Shah
+
+Priya,
+
+The water is fine. Jenn is on site this morning to verify with a field
+meter, but the short version: your old controller reported in one unit
+scale and the new one reports in another, and the alarm thresholds carried
+over unchanged. The number did not move, the scale did. Your vendor needs
+to update the controller config and thresholds.
+
+Jenn will leave a summary with your day engineer.
+
+Dana
